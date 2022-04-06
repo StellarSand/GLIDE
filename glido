@@ -22,7 +22,6 @@ Arch_GKey="4AA4767BBC9C4B1D18AE28B77F2D434B9741E8AC"
 Kali_GKey="44C6513A8E4FB3D30875F758ED444FF07D8D0BF6"
 Endeavor_GKey="497AF50C92AD2384C56E1ACA003DB8B0CB23504F"
 
-DE=""
 DownloadDir=""
 ISO=""
 URL=""
@@ -30,15 +29,9 @@ SHA=""
 Distro=""
 
 # SHA FILE NAMES
-readonly SHA_File="SHA${SHA}SUMS"
-readonly SHA_GPG_File="${SHA_File}.gpg"
-readonly SHA_Sig_File="${ISO}.sig"
-
-# URLS
-ISO_URL="$URL/$ISO"
-SHA_File_URL="$URL/$SHA_File"
-SHA_GPG_URL="$URL/$SHA_GPG_File"
-SHA_Sig_URL="$URL/$SHA_Sig_File"
+SHA_File="SHA${SHA}SUMS"
+SHA_GPG_File="${SHA_File}.gpg"
+SHA_Sig_File="${ISO}.sig"
 
 ####################################################################################################################################################
 
@@ -86,7 +79,7 @@ debian() {
 SHA="512"
 SHA_Sig_File="${SHA_File}.sign"
 ISO="debian-${DebVer}-amd64-DVD-1.iso"
-URL="https://debian-cd.debian.net/debian-cd/$DebVer/amd64/iso-dvd"
+URL="https://debian-cd.debian.net/debian-cd/${DebVer}/amd64/iso-dvd"
 
 }
 
@@ -97,7 +90,7 @@ ubuntu() {
 
 SHA="256"
 ISO="ubuntu-${UbunVer}-desktop-amd64.iso"
-URL="https://releases.ubuntu.com/$UbunVer"
+URL="https://releases.ubuntu.com/${UbunVer}"
 
 }
 
@@ -108,7 +101,7 @@ ubuntu() {
 
 SHA="256"
 ISO="ubuntu-${UbunLTSVer}-desktop-amd64.iso"
-URL="https://releases.ubuntu.com/$UbunLTSVer"
+URL="https://releases.ubuntu.com/${UbunLTSVer}"
 
 }
 
@@ -131,7 +124,7 @@ popos() {
 
 SHA="256"
 ISO="pop-os_${PopVer}_amd64_$1_7.iso"
-URL="https://pop-iso.sfo2.cdn.digitaloceanspaces.com/$PopVer/amd64/$1/7"
+URL="https://pop-iso.sfo2.cdn.digitaloceanspaces.com/${PopVer}/amd64/$1/7"
 
 }
 
@@ -142,7 +135,7 @@ popos_lts() {
 
 SHA="256"
 ISO="pop-os_${PopLTSVer}_amd64_$1_38.iso"
-URL="https://pop-iso.sfo2.cdn.digitaloceanspaces.com/$PopLTSVer/amd64/$1/38"
+URL="https://pop-iso.sfo2.cdn.digitaloceanspaces.com/${PopLTSVer}/amd64/$1/38"
 
 }
 
@@ -200,7 +193,7 @@ SHA_File_URL="${ISO_URL}.$SHA_File"
 download() {
 
 printf "\nDownloading $Distro to $DownloadDir\n\n"
-curl -L -o $DownloadDir/$ISO $ISO_URL -o $DownloadDir/$SHA_File $SHA_URL -o $DownloadDir/$1 $2
+curl -L -o ${DownloadDir}/${ISO} ${URL}/${ISO} -o $DownloadDir/$SHA_File ${URL}/${SHA_File} -o $DownloadDir/$1 $2
 success_fail
 
 }
@@ -312,7 +305,7 @@ case "$option" in
 	;;
 	
 	n)
-		Distro=$OPTARG
+		Distro=${OPTARG}
 	;;
 	
 	*)
@@ -329,8 +322,8 @@ case $Distro in
 	"debian")
 
 		debian
-		download ${SHA_File} ${SHA_Sig_URL}
-		check_auth ${Debian_GKey} ${SHA_File}
+		download ${SHA_File} ${URL}/${SHA_Sig_File}
+		chk_auth ${Debian_GKey} ${SHA_File}
 		chk_int
 
 	;;
@@ -338,8 +331,8 @@ case $Distro in
 	"ubuntu")
 
 		ubuntu
-		download ${SHA_File} ${SHA_GPG_URL}
-		check_auth ${Ubun_GKey} ${SHA_File}
+		download ${SHA_File} ${URL}/${SHA_GPG_File}
+		chk_auth ${Ubun_GKey} ${SHA_File}
 		chk_int
 
 	;;
@@ -348,8 +341,8 @@ case $Distro in
 	"ubuntults")
 
 		ubuntults
-		download ${SHA_File} ${SHA_GPG_URL}
-		check_auth ${Ubun_GKey} ${SHA_File}
+		download ${SHA_File} ${URL}/${SHA_GPG_File}
+		chk_auth ${Ubun_GKey} ${SHA_File}
 		chk_int
 
 	;;
@@ -357,8 +350,8 @@ case $Distro in
 	"linuxmint")
 
 		linuxmint
-		download ${SHA_File} ${SHA_GPG_URL}
-		check_auth ${LMint_GKey} ${SHA_File}
+		download ${SHA_File} ${URL}/${SHA_GPG_File}}
+		chk_auth ${LMint_GKey} ${SHA_File}
 		chk_int
 
 	;;	
@@ -369,14 +362,14 @@ case $Distro in
 		printf "1. With NVIDIA\n2. Without NVIDIA\n\n"
 		read -p "Enter 1 or 2: " nvidiayesno
 		
-		if [ $nvidia -eq 1 ]
+		if [ $nvidiayesno -eq 1 ]
 		then
 			popos "nvidia"
 		else
 			popos "intel"
 		fi
 		
-		download ${SHA_File} ${SHA_GPG_URL}
+		download ${SHA_File} ${URL}/${SHA_GPG_File}
 		chk_int
 		
 	;;
@@ -395,7 +388,7 @@ case $Distro in
 			popos_lts "intel"
 		fi
 		
-		download ${SHA_File} ${SHA_GPG_URL}
+		download ${SHA_File} ${URL}/${SHA_GPG_File}
 		chk_int
 		
 	;;
@@ -404,7 +397,7 @@ case $Distro in
 		
 		fedora
 		printf "\nDownloading $Distro to $DownloadDir\n\n"
-		curl -L -o $DownloadDir/$ISO $ISO_URL -o $DownloadDir/$CHECKSUM $CHECKSUM_URL
+		curl -L -o $DownloadDir/$ISO ${URL}/${ISO} -o $DownloadDir/$CHECKSUM ${CHECKSUM_URL}/${CHECKSUM}
 		success_fail
 		
 		printf "\nAdding GPG keys ...\n\n"
@@ -434,8 +427,8 @@ case $Distro in
 	"arch")
 
 		arch
-		download ${SHA_File} ${SHA_Sig_URL}
-		check_auth ${Arch_GKey} ${SHA_File}
+		download ${SHA_File} ${URL}/${SHA_Sig_File}
+		chk_auth ${Arch_GKey} ${SHA_File}
 		chk_int
 	
 	;;
@@ -444,8 +437,8 @@ case $Distro in
 	"kali")
 
 		kali
-		download ${SHA_File} ${SHA_GPG_URL}
-		check_auth ${Kali_GKey} ${SHA_File}
+		download ${SHA_File} ${URL}/${SHA_GPG_File}
+		chk_auth ${Kali_GKey} ${SHA_File}
 		chk_int
 
 	;;
@@ -453,8 +446,8 @@ case $Distro in
 	"endeavouros")
 	
 		endeavouros
-		download ${SHA_File} ${SHA_Sig_URL}
-		check_auth ${Endeavour_GKey} ${SHA_File}
+		download ${SHA_File} ${URL}/${SHA_Sig_File}
+		chk_auth ${Endeavour_GKey} ${SHA_File}
 		chk_int
 	
 	;;
@@ -462,26 +455,3 @@ case $Distro in
 esac
 
 exit 0
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
