@@ -1,0 +1,487 @@
+#!/bin/sh
+
+####################################################################################################################################################
+
+# VERSIONS
+DebVer="11.3.0"
+UbunVer="21.10"
+UbunLTSVer="20.04.4"
+LMintVer="20.03"
+PopVer="20.04"
+PopLTSVer="21.10"
+FedoraVer="35"
+ArchVer="2022.04.05"
+KaliVer="2022.1"
+EndeavourVer="EndeavourOS_Atlantis_neo-21_5"
+
+# GPG KEYS
+Debian_GKey="DF9B9C49EAA9298432589D76DA87E80D6294BE9B"
+Ubun_GKey="843938DF228D22F7B3742BC0D94AA3F0EFE21092"
+LMint_GKey="27DEB15644C6B3CF3BD7D291300F846BA25BAE09"
+Arch_GKey="4AA4767BBC9C4B1D18AE28B77F2D434B9741E8AC"
+Kali_GKey="44C6513A8E4FB3D30875F758ED444FF07D8D0BF6"
+Endeavor_GKey="497AF50C92AD2384C56E1ACA003DB8B0CB23504F"
+
+DE=""
+DownloadDir=""
+ISO=""
+URL=""
+SHA=""
+Distro=""
+
+# SHA FILE NAMES
+readonly SHA_File="SHA${SHA}SUMS"
+readonly SHA_GPG_File="${SHA_File}.gpg"
+readonly SHA_Sig_File="${ISO}.sig"
+
+# URLS
+ISO_URL="$URL/$ISO"
+SHA_File_URL="$URL/$SHA_File"
+SHA_GPG_URL="$URL/$SHA_GPG_File"
+SHA_Sig_URL="$URL/$SHA_Sig_File"
+
+####################################################################################################################################################
+
+has_command() {
+
+command -v $1 > /dev/null
+
+}
+
+####################################################################################################################################################
+
+success_fail() {
+
+if [ $? -eq 0 ]
+then
+	printf "DONE.\n\n"
+else
+	printf "Some error occurred performing the task.\n\n"
+fi
+
+}
+
+####################################################################################################################################################
+
+# READ DOWNLOAD DIRECTORY FROM USER
+read_dir() {
+read -p 'Enter directory to download the iso: ' downloaddir
+DownloadDir=$downloaddir
+
+if [ ! -d $DownloadDir ]
+then
+	printf "\nDirectory does not exist.\n\n"
+	printf "Creating directory ...\n\n"
+	mkdir $DownloadDir
+	success_fail
+fi
+
+}
+
+####################################################################################################################################################
+
+# DEBIAN
+debian() {
+
+SHA="512"
+SHA_Sig_File="${SHA_File}.sign"
+ISO="debian-${DebVer}-amd64-DVD-1.iso"
+URL="https://debian-cd.debian.net/debian-cd/$DebVer/amd64/iso-dvd"
+
+}
+
+####################################################################################################################################################
+
+# UBUNTU
+ubuntu() {
+
+SHA="256"
+ISO="ubuntu-${UbunVer}-desktop-amd64.iso"
+URL="https://releases.ubuntu.com/$UbunVer"
+
+}
+
+####################################################################################################################################################
+
+# UBUNTU LTS
+ubuntu() {
+
+SHA="256"
+ISO="ubuntu-${UbunLTSVer}-desktop-amd64.iso"
+URL="https://releases.ubuntu.com/$UbunLTSVer"
+
+}
+
+####################################################################################################################################################
+
+# LINUX MINT
+linuxmint() {
+
+SHA="256"
+SHA_File="sha256sum.txt"
+ISO="linuxmint-${LMintVer}-cinnamon-64bit.iso"
+URL="https://mirrors.layeronline.com/linuxmint/stable/${LMintVer}"
+
+}
+
+####################################################################################################################################################
+
+# POP!_OS
+popos() {
+
+SHA="256"
+ISO="pop-os_${PopVer}_amd64_$1_7.iso"
+URL="https://pop-iso.sfo2.cdn.digitaloceanspaces.com/$PopVer/amd64/$1/7"
+
+}
+
+####################################################################################################################################################
+
+# POP!_OS LTS
+popos_lts() {
+
+SHA="256"
+ISO="pop-os_${PopLTSVer}_amd64_$1_38.iso"
+URL="https://pop-iso.sfo2.cdn.digitaloceanspaces.com/$PopLTSVer/amd64/$1/38"
+
+}
+
+####################################################################################################################################################
+
+# FEDORA
+fedora() {
+
+ISO="Fedora-Workstation-Live-x86_64-${FedoraVer}-1.2.iso"
+CHECKSUM="Fedora-Workstation-${FedoraVer}-1.2-x86_64-CHECKSUM"
+URL="https://download.fedoraproject.org/pub/fedora/linux/releases/${FedoraVer}/Workstation/x86_64/iso"
+CHECKSUM_URL="https://getfedora.org/static/checksums/${FedoraVer}/iso"
+
+}
+
+####################################################################################################################################################
+
+# ARCH
+arch() {
+
+SHA="256"
+SHA_File="sha256sums.txt"
+ISO="archlinux-$ArchVer-x86_64.iso"
+URL="https://mirror.rackspace.com/archlinux/iso/$ArchVer"
+
+}
+
+####################################################################################################################################################
+
+# KALI
+kali() {
+
+SHA="256"
+ISO="kali-linux-$KaliVer-installer-amd64.iso"
+URL="https://kali.download/base-images/kali-$KaliVer"
+
+}
+
+####################################################################################################################################################
+
+# ENDEAVOUR OS
+endeavour() {
+
+SHA="512"
+SHA_File="sha512sum"
+ISO="${EndeavourVer}.iso"
+URL="https://github.com/endeavouros-team/ISO/releases/download/1-EndeavourOS-ISO-releases-archive"
+SHA_File_URL="${ISO_URL}.$SHA_File"
+
+}
+
+####################################################################################################################################################
+
+# START DOWNLOAD
+download() {
+
+printf "\nDownloading $Distro to $DownloadDir\n\n"
+curl -L -o $DownloadDir/$ISO $ISO_URL -o $DownloadDir/$SHA_File $SHA_URL -o $DownloadDir/$1 $2
+success_fail
+
+}
+
+####################################################################################################################################################
+
+# CHECK AUTHENTICITY OF THE DOWNLOADED ISO
+chk_auth() {
+
+printf "\nAdding GPG keys ...\n\n"
+gpg --keyid-format long --keyserver hkps://keyserver.ubuntu.com --recv-key 0x$1
+success_fail
+
+printf "\nChecking authenticity of the downloaded iso ...\n\n"
+if [ ! $(gpg --keyid-format long --verify $2 $SHA_File | grep -Fq "Good signature") = "" ]
+then
+	echo "Success\n\n"
+else
+	echo "Failed\n\n"
+	echo "ISO downloaded is not authentic.\n\n"
+fi
+
+}
+
+####################################################################################################################################################
+
+# CHECK INTEGRITY OF THE DOWNLOADED ISO
+chk_int() {
+
+printf "\nChecking integrity of the downloaded iso ...\n\n"
+if [ ! $(sha${SHA}sum -c $DownloadDir/$SHA_File 2>&1 | grep OK) = "" ]
+then
+	printf "Success\n\n"
+else
+	printf "Failed\n\n"
+	printf "The ISO file has been modified or incorrectly downloaded.\n\n"
+fi
+
+}
+
+####################################################################################################################################################
+
+# SHOW USAGE
+usage() {
+
+cat << EOF
+
+Usage: ./glido.sh -d <directory name> -n <distro name>
+
+Script to download a GNU/Linux ISO.
+
+Available options:
+ -h       Print usage
+ -l       Show available distro list
+ -d       Directory path to download the ISO.
+ -n       Distro name (from available list)
+
+Example: ./glido.sh -d /home/user/Desktop -n ubuntults
+
+EOF
+
+}
+
+####################################################################################################################################################
+
+# SHOW LIST OF AVAILABLE DISTROS
+list_distros() {
+
+cat << EOF
+
+Available distros:
+
+debian
+ubuntults
+ubuntu
+linuxmint
+popos
+poposlts
+fedora
+arch
+kali
+endeavouros
+
+EOF
+
+}
+
+####################################################################################################################################################
+####################################################################################################################################################
+
+# START SCRIPT
+
+while getopts :hld:n: option
+do
+case "$option" in
+
+	h)
+		usage
+		exit 0
+	;;
+	
+	l)
+		list_distros
+		exit 0
+	;;
+	
+	d)
+		DownloadDir=${OPTARG}
+	;;
+	
+	n)
+		Distro=$OPTARG
+	;;
+	
+	*)
+		printf "\nInvalid option\n"
+		printf "\nTry './glido -h' for more information.\n\n"
+		exit 0
+	;;
+
+esac
+done
+
+case $Distro in
+
+	"debian")
+
+		debian
+		download ${SHA_File} ${SHA_Sig_URL}
+		check_auth ${Debian_GKey} ${SHA_File}
+		chk_int
+
+	;;
+	
+	"ubuntu")
+
+		ubuntu
+		download ${SHA_File} ${SHA_GPG_URL}
+		check_auth ${Ubun_GKey} ${SHA_File}
+		chk_int
+
+	;;
+	
+	
+	"ubuntults")
+
+		ubuntults
+		download ${SHA_File} ${SHA_GPG_URL}
+		check_auth ${Ubun_GKey} ${SHA_File}
+		chk_int
+
+	;;
+	
+	"linuxmint")
+
+		linuxmint
+		download ${SHA_File} ${SHA_GPG_URL}
+		check_auth ${LMint_GKey} ${SHA_File}
+		chk_int
+
+	;;	
+	
+	"popos")
+	
+		printf "\nSelect whether to download ISO with proprietary NVIDIA graphics preinstalled or not\n\n"
+		printf "1. With NVIDIA\n2. Without NVIDIA\n\n"
+		read -p "Enter 1 or 2: " nvidiayesno
+		
+		if [ $nvidia -eq 1 ]
+		then
+			popos "nvidia"
+		else
+			popos "intel"
+		fi
+		
+		download ${SHA_File} ${SHA_GPG_URL}
+		chk_int
+		
+	;;
+	
+	
+	"poposlts")
+	
+		printf "\nSelect whether to download ISO with proprietary NVIDIA graphics preinstalled or not\n\n"
+		printf "1. With NVIDIA\n2. Without NVIDIA\n\n"
+		read -p "Enter 1 or 2: " nvidiayesno
+		
+		if [ $nvidiayesno -eq 1 ]
+		then
+			popos_lts "nvidia"
+		else
+			popos_lts "intel"
+		fi
+		
+		download ${SHA_File} ${SHA_GPG_URL}
+		chk_int
+		
+	;;
+	
+	"fedora")
+		
+		fedora
+		printf "\nDownloading $Distro to $DownloadDir\n\n"
+		curl -L -o $DownloadDir/$ISO $ISO_URL -o $DownloadDir/$CHECKSUM $CHECKSUM_URL
+		success_fail
+		
+		printf "\nAdding GPG keys ...\n\n"
+		curl https://getfedora.org/static/fedora.gpg | gpg --import
+		success_fail
+
+		printf "\nChecking authenticity of the downloaded iso ...\n\n"
+		if [ ! $(gpg --verify-files *-CHECKSUM | grep -Fq "Good signature") = "" ]
+		then
+			echo "Success\n\n"
+		else
+			echo "Failed\n\n"
+			echo "ISO downloaded is not authentic.\n\n"
+		fi
+		
+		printf "\nChecking integrity of the downloaded iso ...\n\n"
+		if [ ! $(sha256sum -c *-CHECKSUM 2>&1 | grep OK) = "" ]
+		then
+			printf "Success\n\n"
+		else
+			printf "Failed\n\n"
+			printf "The ISO file has been modified or incorrectly downloaded.\n\n"
+		fi
+		
+	;;
+	
+	"arch")
+
+		arch
+		download ${SHA_File} ${SHA_Sig_URL}
+		check_auth ${Arch_GKey} ${SHA_File}
+		chk_int
+	
+	;;
+	
+	
+	"kali")
+
+		kali
+		download ${SHA_File} ${SHA_GPG_URL}
+		check_auth ${Kali_GKey} ${SHA_File}
+		chk_int
+
+	;;
+	
+	"endeavouros")
+	
+		endeavouros
+		download ${SHA_File} ${SHA_Sig_URL}
+		check_auth ${Endeavour_GKey} ${SHA_File}
+		chk_int
+	
+	;;
+
+esac
+
+exit 0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
