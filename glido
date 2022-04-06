@@ -56,23 +56,6 @@ fi
 
 ####################################################################################################################################################
 
-# READ DOWNLOAD DIRECTORY FROM USER
-read_dir() {
-read -p 'Enter directory to download the iso: ' downloaddir
-DownloadDir=$downloaddir
-
-if [ ! -d $DownloadDir ]
-then
-	printf "\nDirectory does not exist.\n\n"
-	printf "Creating directory ...\n\n"
-	mkdir $DownloadDir
-	success_fail
-fi
-
-}
-
-####################################################################################################################################################
-
 # DEBIAN
 debian() {
 
@@ -97,7 +80,7 @@ URL="https://releases.ubuntu.com/${UbunVer}"
 ####################################################################################################################################################
 
 # UBUNTU LTS
-ubuntu() {
+ubuntu_lts() {
 
 SHA="256"
 ISO="ubuntu-${UbunLTSVer}-desktop-amd64.iso"
@@ -340,7 +323,7 @@ case $Distro in
 	
 	"ubuntults")
 
-		ubuntults
+		ubuntu_lts
 		download ${SHA_File} ${URL}/${SHA_GPG_File}
 		chk_auth ${Ubun_GKey} ${SHA_File}
 		chk_int
