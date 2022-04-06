@@ -166,7 +166,7 @@ SHA="512"
 SHA_File="sha512sum"
 ISO="${EndeavourVer}.iso"
 URL="https://github.com/endeavouros-team/ISO/releases/download/1-EndeavourOS-ISO-releases-archive"
-SHA_File_URL="${ISO_URL}.$SHA_File"
+SHA_File_URL="${URL}/${ISO}.$SHA_File"
 
 }
 
@@ -249,16 +249,16 @@ cat << EOF
 
 Available distros:
 
+arch
 debian
-ubuntults
-ubuntu
+endeavouros
+fedora
+kali
 linuxmint
 popos
 poposlts
-fedora
-arch
-kali
-endeavouros
+ubuntu
+ubuntults
 
 EOF
 
