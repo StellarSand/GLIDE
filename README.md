@@ -19,16 +19,16 @@ Download a GNU/Linux ISO directly from terminal and auto check it's authenticity
 
 **Distro** | **Version**
 --- | ---
-Debian | 11.3.0
-Ubuntu | 21.10
-Ubuntu LTS | 20.04.4
-Linux Mint | 20.03
-Pop!_OS | 21.10
-Pop!_OS LTS | 20.04
-Fedora Workstation | 35
-Arch | 2022.04.05
-Kali | 2022.1
-Endeavour OS | 21.5
+[Arch Linux](https://archlinux.org/) | 2022.04.05
+[Debian](https://www.debian.org/) | 11.3.0
+[Endeavour OS](https://endeavouros.com/) | 21.5
+[Fedora Workstation](https://getfedora.org/) | 35
+[Kali Linux](https://www.kali.org/) | 2022.1
+[Linux Mint](https://linuxmint.com/) | 20.03
+[Pop!_OS](https://pop.system76.com/) | 21.10
+[Pop!_OS LTS](https://pop.system76.com/) | 20.04
+[Ubuntu](https://ubuntu.com/) | 21.10
+[Ubuntu LTS](https://ubuntu.com/) | 20.04.4
 
 
 
