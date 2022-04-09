@@ -1,6 +1,6 @@
 #!/bin/sh
 
-####################################################################################################################################################
+########################################################################################################################
 
 # VERSIONS
 DebVer="11.3.0"
@@ -12,7 +12,7 @@ PopLTSVer="21.10"
 FedoraVer="35"
 ArchVer="2022.04.05"
 KaliVer="2022.1"
-EndeavourVer="EndeavourOS_Atlantis_neo-21_5"
+EndeavourVer="EndeavourOS_Apollo_22_1"
 
 # GPG KEYS
 Debian_GKey="DF9B9C49EAA9298432589D76DA87E80D6294BE9B"
@@ -22,18 +22,18 @@ Arch_GKey="4AA4767BBC9C4B1D18AE28B77F2D434B9741E8AC"
 Kali_GKey="44C6513A8E4FB3D30875F758ED444FF07D8D0BF6"
 Endeavor_GKey="497AF50C92AD2384C56E1ACA003DB8B0CB23504F"
 
+Distro=""
 DownloadDir=""
+SHA=""
 ISO=""
 URL=""
-SHA=""
-Distro=""
 
 # SHA FILE NAMES
 SHA_File="SHA${SHA}SUMS"
 SHA_GPG_File="${SHA_File}.gpg"
 SHA_Sig_File="${ISO}.sig"
 
-####################################################################################################################################################
+########################################################################################################################
 
 has_command() {
 
@@ -41,7 +41,7 @@ command -v $1 > /dev/null
 
 }
 
-####################################################################################################################################################
+########################################################################################################################
 
 success_fail() {
 
@@ -54,87 +54,7 @@ fi
 
 }
 
-####################################################################################################################################################
-
-# DEBIAN
-debian() {
-
-SHA="512"
-SHA_Sig_File="${SHA_File}.sign"
-ISO="debian-${DebVer}-amd64-DVD-1.iso"
-URL="https://debian-cd.debian.net/debian-cd/${DebVer}/amd64/iso-dvd"
-
-}
-
-####################################################################################################################################################
-
-# UBUNTU
-ubuntu() {
-
-SHA="256"
-ISO="ubuntu-${UbunVer}-desktop-amd64.iso"
-URL="https://releases.ubuntu.com/${UbunVer}"
-
-}
-
-####################################################################################################################################################
-
-# UBUNTU LTS
-ubuntu_lts() {
-
-SHA="256"
-ISO="ubuntu-${UbunLTSVer}-desktop-amd64.iso"
-URL="https://releases.ubuntu.com/${UbunLTSVer}"
-
-}
-
-####################################################################################################################################################
-
-# LINUX MINT
-linuxmint() {
-
-SHA="256"
-SHA_File="sha256sum.txt"
-ISO="linuxmint-${LMintVer}-cinnamon-64bit.iso"
-URL="https://mirrors.layeronline.com/linuxmint/stable/${LMintVer}"
-
-}
-
-####################################################################################################################################################
-
-# POP!_OS
-popos() {
-
-SHA="256"
-ISO="pop-os_${PopVer}_amd64_$1_7.iso"
-URL="https://pop-iso.sfo2.cdn.digitaloceanspaces.com/${PopVer}/amd64/$1/7"
-
-}
-
-####################################################################################################################################################
-
-# POP!_OS LTS
-popos_lts() {
-
-SHA="256"
-ISO="pop-os_${PopLTSVer}_amd64_$1_38.iso"
-URL="https://pop-iso.sfo2.cdn.digitaloceanspaces.com/${PopLTSVer}/amd64/$1/38"
-
-}
-
-####################################################################################################################################################
-
-# FEDORA
-fedora() {
-
-ISO="Fedora-Workstation-Live-x86_64-${FedoraVer}-1.2.iso"
-CHECKSUM="Fedora-Workstation-${FedoraVer}-1.2-x86_64-CHECKSUM"
-URL="https://download.fedoraproject.org/pub/fedora/linux/releases/${FedoraVer}/Workstation/x86_64/iso"
-CHECKSUM_URL="https://getfedora.org/static/checksums/${FedoraVer}/iso"
-
-}
-
-####################################################################################################################################################
+########################################################################################################################
 
 # ARCH
 arch() {
@@ -146,7 +66,44 @@ URL="https://mirror.rackspace.com/archlinux/iso/$ArchVer"
 
 }
 
-####################################################################################################################################################
+########################################################################################################################
+
+# DEBIAN
+debian() {
+
+SHA="512"
+SHA_Sig_File="${SHA_File}.sign"
+ISO="debian-${DebVer}-amd64-DVD-1.iso"
+URL="https://debian-cd.debian.net/debian-cd/${DebVer}/amd64/iso-dvd"
+
+}
+
+########################################################################################################################
+
+# ENDEAVOUR OS
+endeavouros() {
+
+SHA="512"
+SHA_File="sha512sum"
+ISO="${EndeavourVer}.iso"
+URL="https://github.com/endeavouros-team/ISO/releases/download/1-EndeavourOS-ISO-releases-archive"
+SHA_File_URL="${URL}/${ISO}.$SHA_File"
+
+}
+
+########################################################################################################################
+
+# FEDORA
+fedora() {
+
+ISO="Fedora-Workstation-Live-x86_64-${FedoraVer}-1.2.iso"
+CHECKSUM="Fedora-Workstation-${FedoraVer}-1.2-x86_64-CHECKSUM"
+URL="https://download.fedoraproject.org/pub/fedora/linux/releases/${FedoraVer}/Workstation/x86_64/iso"
+CHECKSUM_URL="https://getfedora.org/static/checksums/${FedoraVer}/iso"
+
+}
+
+########################################################################################################################
 
 # KALI
 kali() {
@@ -157,20 +114,63 @@ URL="https://kali.download/base-images/kali-$KaliVer"
 
 }
 
-####################################################################################################################################################
+########################################################################################################################
 
-# ENDEAVOUR OS
-endeavour() {
+# LINUX MINT
+linuxmint() {
 
-SHA="512"
-SHA_File="sha512sum"
-ISO="${EndeavourVer}.iso"
-URL="https://github.com/endeavouros-team/ISO/releases/download/1-EndeavourOS-ISO-releases-archive"
-SHA_File_URL="${URL}/${ISO}.$SHA_File"
+SHA="256"
+SHA_File="sha256sum.txt"
+ISO="linuxmint-${LMintVer}-cinnamon-64bit.iso"
+URL="https://mirrors.layeronline.com/linuxmint/stable/${LMintVer}"
 
 }
 
-####################################################################################################################################################
+########################################################################################################################
+
+# POP!_OS
+popos() {
+
+SHA="256"
+ISO="pop-os_${PopVer}_amd64_$1_7.iso"
+URL="https://pop-iso.sfo2.cdn.digitaloceanspaces.com/${PopVer}/amd64/$1/7"
+
+}
+
+########################################################################################################################
+
+# POP!_OS LTS
+popos_lts() {
+
+SHA="256"
+ISO="pop-os_${PopLTSVer}_amd64_$1_38.iso"
+URL="https://pop-iso.sfo2.cdn.digitaloceanspaces.com/${PopLTSVer}/amd64/$1/38"
+
+}
+
+########################################################################################################################
+
+# UBUNTU
+ubuntu() {
+
+SHA="256"
+ISO="ubuntu-${UbunVer}-desktop-amd64.iso"
+URL="https://releases.ubuntu.com/${UbunVer}"
+
+}
+
+########################################################################################################################
+
+# UBUNTU LTS
+ubuntu_lts() {
+
+SHA="256"
+ISO="ubuntu-${UbunLTSVer}-desktop-amd64.iso"
+URL="https://releases.ubuntu.com/${UbunLTSVer}"
+
+}
+
+########################################################################################################################
 
 # START DOWNLOAD
 download() {
@@ -181,7 +181,7 @@ success_fail
 
 }
 
-####################################################################################################################################################
+########################################################################################################################
 
 # CHECK AUTHENTICITY OF THE DOWNLOADED ISO
 chk_auth() {
@@ -201,7 +201,7 @@ fi
 
 }
 
-####################################################################################################################################################
+########################################################################################################################
 
 # CHECK INTEGRITY OF THE DOWNLOADED ISO
 chk_int() {
@@ -217,7 +217,7 @@ fi
 
 }
 
-####################################################################################################################################################
+########################################################################################################################
 
 # SHOW USAGE
 usage() {
@@ -240,7 +240,7 @@ EOF
 
 }
 
-####################################################################################################################################################
+########################################################################################################################
 
 # SHOW LIST OF AVAILABLE DISTROS
 list_distros() {
@@ -264,8 +264,8 @@ EOF
 
 }
 
-####################################################################################################################################################
-####################################################################################################################################################
+########################################################################################################################
+########################################################################################################################
 
 # START SCRIPT
 
@@ -300,7 +300,33 @@ case "$option" in
 esac
 done
 
+# CHECK DOWNLOAD DIRECTORY
+if [ ! -d $DownloadDir ]
+then
+	printf "\n$DownloadDir does not exist\n\n"
+	read -p "Create $DownloadDir? [y/n]: " yesno
+	if [ $yesno == "y" ] || [ $yesno == "yes" ]
+	then
+		printf "\nCreating $DownloadDir ...\n\n"
+		mkdir $DownloadDir
+		success_fail
+	
+	else
+		printf "\nExiting script ...\n\n"
+		exit 1
+	fi
+fi
+
 case $Distro in
+
+	"arch")
+
+		arch
+		download ${SHA_File} ${URL}/${SHA_Sig_File}
+		chk_auth ${Arch_GKey} ${SHA_File}
+		chk_int
+	
+	;;
 
 	"debian")
 
@@ -310,72 +336,16 @@ case $Distro in
 		chk_int
 
 	;;
+
+	"endeavouros")
 	
-	"ubuntu")
-
-		ubuntu
-		download ${SHA_File} ${URL}/${SHA_GPG_File}
-		chk_auth ${Ubun_GKey} ${SHA_File}
+		endeavouros
+		download ${SHA_File} ${URL}/${SHA_Sig_File}
+		chk_auth ${Endeavour_GKey} ${SHA_File}
 		chk_int
-
+	
 	;;
-	
-	
-	"ubuntults")
 
-		ubuntu_lts
-		download ${SHA_File} ${URL}/${SHA_GPG_File}
-		chk_auth ${Ubun_GKey} ${SHA_File}
-		chk_int
-
-	;;
-	
-	"linuxmint")
-
-		linuxmint
-		download ${SHA_File} ${URL}/${SHA_GPG_File}}
-		chk_auth ${LMint_GKey} ${SHA_File}
-		chk_int
-
-	;;	
-	
-	"popos")
-	
-		printf "\nSelect whether to download ISO with proprietary NVIDIA graphics preinstalled or not\n\n"
-		printf "1. With NVIDIA\n2. Without NVIDIA\n\n"
-		read -p "Enter 1 or 2: " nvidiayesno
-		
-		if [ $nvidiayesno -eq 1 ]
-		then
-			popos "nvidia"
-		else
-			popos "intel"
-		fi
-		
-		download ${SHA_File} ${URL}/${SHA_GPG_File}
-		chk_int
-		
-	;;
-	
-	
-	"poposlts")
-	
-		printf "\nSelect whether to download ISO with proprietary NVIDIA graphics preinstalled or not\n\n"
-		printf "1. With NVIDIA\n2. Without NVIDIA\n\n"
-		read -p "Enter 1 or 2: " nvidiayesno
-		
-		if [ $nvidiayesno -eq 1 ]
-		then
-			popos_lts "nvidia"
-		else
-			popos_lts "intel"
-		fi
-		
-		download ${SHA_File} ${URL}/${SHA_GPG_File}
-		chk_int
-		
-	;;
-	
 	"fedora")
 		
 		fedora
@@ -406,17 +376,7 @@ case $Distro in
 		fi
 		
 	;;
-	
-	"arch")
 
-		arch
-		download ${SHA_File} ${URL}/${SHA_Sig_File}
-		chk_auth ${Arch_GKey} ${SHA_File}
-		chk_int
-	
-	;;
-	
-	
 	"kali")
 
 		kali
@@ -425,14 +385,68 @@ case $Distro in
 		chk_int
 
 	;;
-	
-	"endeavouros")
-	
-		endeavouros
-		download ${SHA_File} ${URL}/${SHA_Sig_File}
-		chk_auth ${Endeavour_GKey} ${SHA_File}
+
+	"linuxmint")
+
+		linuxmint
+		download ${SHA_File} ${URL}/${SHA_GPG_File}}
+		chk_auth ${LMint_GKey} ${SHA_File}
 		chk_int
+
+	;;	
 	
+	"popos")
+	
+		printf "\nSelect whether to download ISO with proprietary NVIDIA graphics preinstalled or not\n\n"
+		printf "1. With NVIDIA\n2. Without NVIDIA\n\n"
+		read -p "Enter 1 or 2: " nvidiayesno
+		
+		if [ $nvidiayesno -eq 1 ]
+		then
+			popos "nvidia"
+		else
+			popos "intel"
+		fi
+		
+		download ${SHA_File} ${URL}/${SHA_GPG_File}
+		chk_int
+		
+	;;
+	
+	"poposlts")
+	
+		printf "\nSelect whether to download ISO with proprietary NVIDIA graphics preinstalled or not\n\n"
+		printf "1. With NVIDIA\n2. Without NVIDIA\n\n"
+		read -p "Enter 1 or 2: " nvidiayesno
+		
+		if [ $nvidiayesno -eq 1 ]
+		then
+			popos_lts "nvidia"
+		else
+			popos_lts "intel"
+		fi
+		
+		download ${SHA_File} ${URL}/${SHA_GPG_File}
+		chk_int
+		
+	;;
+	
+	"ubuntu")
+
+		ubuntu
+		download ${SHA_File} ${URL}/${SHA_GPG_File}
+		chk_auth ${Ubun_GKey} ${SHA_File}
+		chk_int
+
+	;;
+	
+	"ubuntults")
+
+		ubuntu_lts
+		download ${SHA_File} ${URL}/${SHA_GPG_File}
+		chk_auth ${Ubun_GKey} ${SHA_File}
+		chk_int
+
 	;;
 
 esac

@@ -21,7 +21,7 @@ Download a GNU/Linux ISO directly from terminal and auto check it's authenticity
 --- | ---
 [Arch Linux](https://archlinux.org/) | 2022.04.05
 [Debian](https://www.debian.org/) | 11.3.0
-[Endeavour OS](https://endeavouros.com/) | 21.5
+[Endeavour OS](https://endeavouros.com/) | 22.1
 [Fedora Workstation](https://getfedora.org/) | 35
 [Kali Linux](https://www.kali.org/) | 2022.1
 [Linux Mint](https://linuxmint.com/) | 20.03
