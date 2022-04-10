@@ -3,24 +3,25 @@
 ########################################################################################################################
 
 # VERSIONS
+ArchVer="2022.04.05"
+CentStreamVer="9"
 DebVer="11.3.0"
-UbunVer="21.10"
-UbunLTSVer="20.04.4"
+EndeavourVer="Apollo_22_1"
+FedoraVer="35"
+KaliVer="2022.1"
 LMintVer="20.03"
 PopVer="20.04"
 PopLTSVer="21.10"
-FedoraVer="35"
-ArchVer="2022.04.05"
-KaliVer="2022.1"
-EndeavourVer="EndeavourOS_Apollo_22_1"
+UbunVer="21.10"
+UbunLTSVer="20.04.4"
 
 # GPG KEYS
-Debian_GKey="DF9B9C49EAA9298432589D76DA87E80D6294BE9B"
-Ubun_GKey="843938DF228D22F7B3742BC0D94AA3F0EFE21092"
-LMint_GKey="27DEB15644C6B3CF3BD7D291300F846BA25BAE09"
 Arch_GKey="4AA4767BBC9C4B1D18AE28B77F2D434B9741E8AC"
+Debian_GKey="DF9B9C49EAA9298432589D76DA87E80D6294BE9B"
+Endeavour_GKey="497AF50C92AD2384C56E1ACA003DB8B0CB23504F"
 Kali_GKey="44C6513A8E4FB3D30875F758ED444FF07D8D0BF6"
-Endeavor_GKey="497AF50C92AD2384C56E1ACA003DB8B0CB23504F"
+LMint_GKey="27DEB15644C6B3CF3BD7D291300F846BA25BAE09"
+Ubun_GKey="843938DF228D22F7B3742BC0D94AA3F0EFE21092"
 
 Distro=""
 DownloadDir=""
@@ -68,6 +69,19 @@ URL="https://mirror.rackspace.com/archlinux/iso/$ArchVer"
 
 ########################################################################################################################
 
+# CENTOS STREAM
+centosstream() {
+
+SHA="256"
+SHA_File="SHA${SHA}SUM"
+ISO="CentOS-Stream-${CentStreamVer}-latest-x86_64-dvd1.iso"
+URL="https://mirrors.centos.org/mirrorlist?path=/${CentStreamVer}-stream/BaseOS/x86_64/iso"
+
+}
+
+########################################################################################################################
+
+
 # DEBIAN
 debian() {
 
@@ -85,7 +99,7 @@ endeavouros() {
 
 SHA="512"
 SHA_File="sha512sum"
-ISO="${EndeavourVer}.iso"
+ISO="EndeavourOS_${EndeavourVer}.iso"
 URL="https://github.com/endeavouros-team/ISO/releases/download/1-EndeavourOS-ISO-releases-archive"
 SHA_File_URL="${URL}/${ISO}.$SHA_File"
 
@@ -250,6 +264,7 @@ cat << EOF
 Available distros:
 
 arch
+centosstream
 debian
 endeavouros
 fedora
@@ -322,17 +337,27 @@ case $Distro in
 	"arch")
 
 		arch
-		download ${SHA_File} ${URL}/${SHA_Sig_File}
-		chk_auth ${Arch_GKey} ${SHA_File}
+		download ${SHA_Sig_File} ${URL}/${SHA_Sig_File}
+		chk_auth ${Arch_GKey} ${SHA_Sig_File}
 		chk_int
 	
+	;;
+
+	"centosstream")
+
+		centosstream
+		printf "\nDownloading $Distro to $DownloadDir\n\n"
+		curl -L -o ${DownloadDir}/${ISO} "${URL}/${ISO}&redirect=1&protocol=https" -o $DownloadDir/$SHA_File ${URL}/${SHA_File}
+		success_fail
+		chk_int
+
 	;;
 
 	"debian")
 
 		debian
-		download ${SHA_File} ${URL}/${SHA_Sig_File}
-		chk_auth ${Debian_GKey} ${SHA_File}
+		download ${SHA_Sig_File} ${URL}/${SHA_Sig_File}
+		chk_auth ${Debian_GKey} ${SHA_Sig_File}
 		chk_int
 
 	;;
@@ -340,8 +365,8 @@ case $Distro in
 	"endeavouros")
 	
 		endeavouros
-		download ${SHA_File} ${URL}/${SHA_Sig_File}
-		chk_auth ${Endeavour_GKey} ${SHA_File}
+		download ${SHA_Sig_File} ${URL}/${SHA_Sig_File}
+		chk_auth ${Endeavour_GKey} ${SHA_Sig_File}
 		chk_int
 	
 	;;
@@ -380,8 +405,8 @@ case $Distro in
 	"kali")
 
 		kali
-		download ${SHA_File} ${URL}/${SHA_GPG_File}
-		chk_auth ${Kali_GKey} ${SHA_File}
+		download ${SHA_GPG_File} ${URL}/${SHA_GPG_File}
+		chk_auth ${Kali_GKey} ${SHA_GPG_File}
 		chk_int
 
 	;;
@@ -389,8 +414,8 @@ case $Distro in
 	"linuxmint")
 
 		linuxmint
-		download ${SHA_File} ${URL}/${SHA_GPG_File}}
-		chk_auth ${LMint_GKey} ${SHA_File}
+		download ${SHA_GPG_File} ${URL}/${SHA_GPG_File}}
+		chk_auth ${LMint_GKey} ${SHA_GPG_File}
 		chk_int
 
 	;;	
@@ -408,7 +433,7 @@ case $Distro in
 			popos "intel"
 		fi
 		
-		download ${SHA_File} ${URL}/${SHA_GPG_File}
+		download ${SHA_GPG_File} ${URL}/${SHA_GPG_File}
 		chk_int
 		
 	;;
@@ -426,7 +451,7 @@ case $Distro in
 			popos_lts "intel"
 		fi
 		
-		download ${SHA_File} ${URL}/${SHA_GPG_File}
+		download ${SHA_GPG_File} ${URL}/${SHA_GPG_File}
 		chk_int
 		
 	;;
@@ -434,8 +459,8 @@ case $Distro in
 	"ubuntu")
 
 		ubuntu
-		download ${SHA_File} ${URL}/${SHA_GPG_File}
-		chk_auth ${Ubun_GKey} ${SHA_File}
+		download ${SHA_GPG_File} ${URL}/${SHA_GPG_File}
+		chk_auth ${Ubun_GKey} ${SHA_GPG_File}
 		chk_int
 
 	;;
@@ -443,8 +468,8 @@ case $Distro in
 	"ubuntults")
 
 		ubuntu_lts
-		download ${SHA_File} ${URL}/${SHA_GPG_File}
-		chk_auth ${Ubun_GKey} ${SHA_File}
+		download ${SHA_GPG_File} ${URL}/${SHA_GPG_File}
+		chk_auth ${Ubun_GKey} ${SHA_GPG_File}
 		chk_int
 
 	;;

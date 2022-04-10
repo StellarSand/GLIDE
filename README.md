@@ -20,6 +20,7 @@ Download a GNU/Linux ISO directly from terminal and auto check it's authenticity
 **Distro** | **Version**
 --- | ---
 [Arch Linux](https://archlinux.org/) | 2022.04.05
+[CentOS Stream](https://www.centos.org/) | 9
 [Debian](https://www.debian.org/) | 11.3.0
 [Endeavour OS](https://endeavouros.com/) | 22.1
 [Fedora Workstation](https://getfedora.org/) | 35
