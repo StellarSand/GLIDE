@@ -319,11 +319,15 @@ done
 if ! has_command "curl"
 then
 	printf "\ncurl package does not exist. Please install it first and try again.\n\n"
+	printf "Exiting script ...\n\n"
+	exit 1
 fi
 
 if ! has_command "gpg"
 then
 	printf "\ngpg package does not exist. Please install it first and try again.\n\n"
+	printf "Exiting script ...\n\n"
+	exit 1
 fi
 
 # CHECK DOWNLOAD DIRECTORY
