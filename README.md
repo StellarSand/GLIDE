@@ -29,7 +29,7 @@ Download a GNU/Linux ISO directly from terminal and auto check it's authenticity
 [Pop!_OS](https://pop.system76.com/) | 21.10
 [Pop!_OS LTS](https://pop.system76.com/) | 20.04
 [Ubuntu](https://ubuntu.com/) | 21.10
-[Ubuntu LTS](https://ubuntu.com/) | 20.04.4
+[Ubuntu LTS](https://ubuntu.com/) | 22.04
 
 
 
