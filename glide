@@ -1,0 +1,183 @@
+#!/bin/bash
+
+source ./common_utils.sh
+
+Distro=""
+DefDnldDir=$(xdg-user-dir DOWNLOAD)
+ConfigDir="$HOME/.config/GLIDE"
+ConfigDirFile="$ConfigDir/dnld_dir"
+
+has_command() {
+command -v "$1" > /dev/null
+}
+
+# Show usage
+usage() {
+
+cat << EOF
+
+Usage: ./glide -n <distro name>
+
+Script to download a GNU/Linux ISO.
+
+Available options:
+ -h       Print usage
+ -l       Show available distro list
+ -d       Change default download directory
+ -n       Distro name (from available list)
+
+Example: ./glide -n ubuntu
+
+EOF
+
+}
+
+# Show list of available distros
+list_distros() {
+
+cat << EOF
+
+Available distros:
+
+arch
+centosstream
+debian
+endeavouros
+fedora
+kali
+linuxmint
+ubuntu
+
+EOF
+
+}
+
+# Start script
+
+while getopts :hld:n: option
+do
+case "$option" in
+
+	h)
+		usage
+		exit 0
+	;;
+	
+	l)
+		list_distros
+		exit 0
+	;;
+	
+	d)
+	  echo -e "Enter the directory path to download ISO:\n"
+		DefDnldDir=${OPTARG}
+		echo "$DefDnldDir" > "$ConfigDirFile"
+		echo -e "All ISO will be downloaded in $DefDnldDir"
+	;;
+	
+	n)
+		Distro=${OPTARG}
+	;;
+	
+	*)
+		echo -e "\nInvalid option\n"
+		echo -e "Try './glide -h' for more information.\n"
+		exit 1
+	;;
+
+esac
+done
+
+# Check config directory
+if [ ! -d "$ConfigDir" ]
+then
+		mkdir "$ConfigDir"
+fi
+
+# Check config file
+if [ ! -f "$ConfigDirFile" ]
+then
+  echo -e "$DefDnldDir" > "$ConfigDirFile"
+  echo -e "Default download directory is set to $DefDnldDir"
+fi
+
+# Check curl package
+if ! has_command "curl"
+then
+	echo -e "\ncurl package does not exist. Please install it first and try again.\n"
+	echo -e "Exiting script ...\n"
+	exit 1
+fi
+
+# Check GPG package
+if ! has_command "gpg"
+then
+	echo -e "\ngpg package does not exist. Please install it first and try again.\n"
+	echo -e "Exiting script ...\n"
+	exit 1
+fi
+
+# Check download directory
+if [ ! -d "$DefDnldDir" ]
+then
+	echo -e "\n$DefDnldDir does not exist.\n"
+	read -p "Create $DefDnldDir? [y/n]: " yesno
+	if [[ "$yesno" == "y" || "$yesno" == "yes" ]]
+	then
+		echo -e "Creating $DefDnldDir ...\n"
+		mkdir "$DefDnldDir"
+		success_fail
+	else
+	  echo -e "Set a default directory to download files to using "
+		echo -e "\nExiting script ...\n"
+		exit 1
+	fi
+fi
+
+# Perform actual downloads
+# Keep scripts separate for easier & better maintenance
+case $Distro in
+
+	"arch")
+	  exec_perm distros/arch.sh
+	  ./distros/arch.sh
+	;;
+
+	"centosstream")
+	  exec_perm distros/centosstream.sh
+    ./distros/centosstream.sh
+	;;
+
+	"debian")
+	  exec_perm distros/debian.sh
+    ./distros/debian.sh
+	;;
+
+	"endeavouros")
+	  exec_perm distros/endeavouros.sh
+    ./distros/endeavouros.sh
+	;;
+
+	"fedora")
+		exec_perm distros/fedora.sh
+    ./distros/fedora.sh
+	;;
+
+	"kali")
+	  exec_perm distros/kali.sh
+    ./distros/kali.sh
+	;;
+
+	"linuxmint")
+	  exec_perm distros/linuxmint.sh
+    ./distros/linuxmint.sh
+	;;
+	
+	"ubuntu")
+	  exec_perm distros/ubuntu.sh
+    ./distros/ubuntu.sh
+	;;
+
+esac
+
+exit 0
