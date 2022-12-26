@@ -1,5 +1,5 @@
-# GLIDO
-**G**NU/**L**inux **I**SO **Do**wnloader
+# GLIDE
+**G**NU/**L**inux **I**SO **D**ownload**e**r
 
 Download a GNU/Linux ISO directly from terminal and auto check it's authenticity and integrity.
 
@@ -17,19 +17,17 @@ Download a GNU/Linux ISO directly from terminal and auto check it's authenticity
 
 ## Available distros to download
 
-**Distro** | **Version**
+Distro | Version
 --- | ---
-[Arch Linux](https://archlinux.org/) | 2022.04.05
+[Arch Linux](https://archlinux.org/) | 2022.12.01
 [CentOS Stream](https://www.centos.org/) | 9
-[Debian](https://www.debian.org/) | 11.3.0
+[Debian](https://www.debian.org/) | 11.6.0
 [Endeavour OS](https://endeavouros.com/) | 22.1
-[Fedora Workstation](https://getfedora.org/) | 35
-[Kali Linux](https://www.kali.org/) | 2022.1
-[Linux Mint](https://linuxmint.com/) | 20.03
-[Pop!_OS](https://pop.system76.com/) | 21.10
-[Pop!_OS LTS](https://pop.system76.com/) | 20.04
-[Ubuntu](https://ubuntu.com/) | 21.10
-[Ubuntu LTS](https://ubuntu.com/) | 22.04
+[Fedora Workstation](https://getfedora.org/) | 37
+[Kali Linux](https://www.kali.org/) | 2022.4
+[Linux Mint](https://linuxmint.com/) | 21.1
+[Ubuntu](https://ubuntu.com/) | 22.10
+[Ubuntu LTS](https://ubuntu.com/) | 22.04.1
 
 
 
@@ -38,31 +36,31 @@ To use this script
 
 **1. Clone this repo:**
 ```sh
-git clone https://github.com/the-weird-aquarian/GLIDO.git
+git clone https://github.com/the-weird-aquarian/GLIDE.git
 ```
 
 **2. Move into the project directory:**
 ```sh
-cd GLIDO
+cd GLIDE
 ```
 
 **3. Give executable permissions to the script:**
 ```sh
-chmod +x glido
+chmod +x glide
 ```
 
 **4. Run the script:**
 ```sh
-./glido -d <directory name> -n <distro name>
+./glide -n <distro name>
 ```
 
 
 
 ## List of available options
-```sh
+```
  -h       Print usage
  -l       Show available distro list
- -d       Directory path to download the ISO.
+ -d       Change default download directory
  -n       Distro name (from available list)
 ```
 
@@ -71,11 +69,11 @@ chmod +x glido
 ## Example usage:
 - To show available distro list:
 ```sh
-./glido -l
+./glide -l
 ```
 - To download Linux Mint ISO:
 ```sh
-./glido -d /home/user/Desktop -n linuxmint
+./glide -n linuxmint
 ```
 
 
@@ -87,4 +85,7 @@ chmod +x glido
 
 
 ## Contributing
+- The versions file is located at [conf/versions](https://github.com/the-weird-aquarian/GLIDE/blob/main/conf/versions).
+- Pull requests can be submitted [here](https://github.com/the-weird-aquarian/GLIDE/pulls)
+
 Any contribution to the project will be highly appreciated.
