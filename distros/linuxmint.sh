@@ -2,8 +2,8 @@
 
 source ./common_utils.sh
 
-LMintVer=$(version LinuxMint)
-LMint_GKey=$(GKey LinuxMint)
+LMintVer=$(version Linux_Mint)
+LMint_GKey=$(GKey Linux_Mint)
 
 ISO="linuxmint-${LMintVer}-cinnamon-64bit.iso"
 URL="https://mirrors.layeronline.com/linuxmint/stable/${LMintVer}"
