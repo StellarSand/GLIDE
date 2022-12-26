@@ -2,7 +2,7 @@
 
 source ./common_utils.sh
 
-CentStreamVer=$(version CentOSStream)
+CentStreamVer=$(version CentOS_Stream)
 
 ISO="CentOS-Stream-${CentStreamVer}-latest-x86_64-dvd1.iso"
 URL="https://mirrors.centos.org/mirrorlist?path=/${CentStreamVer}-stream/BaseOS/x86_64/iso"

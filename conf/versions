@@ -1,5 +1,5 @@
 Arch=2022.12.01
-Cent_OS_Stream=9
+CentOS_Stream=9
 Debian=11.6.0
 Endeavour=Cassini_22_12
 Fedora=37
