@@ -56,19 +56,15 @@ chkAuth() {
   successFail
 
   echo -e "\nChecking authenticity of the downloaded ISO ...\n"
-  if [ ! "$(gpg --keyid-format long --verify "$(downloadDir)"/"${Sig_File}" "$(downloadDir)"/"${SHA_File}" | grep -Fq "Good signature")" = "" ]
-  then
-    echo -e "Success\n"
-  else
-    echo -e "Failed\n"
-    echo -e "ISO downloaded is not authentic.\n"
-  fi
+  cd "$(downloadDir)" || exit
+  gpg --keyid-format long --verify "${Sig_File}"
 }
 
 # Check integrity of downloaded ISO
 chkInt() {
   echo -e "\nChecking integrity of the downloaded ISO ...\n"
-  if [ ! "$(sha512sum -c "$(downloadDir)"/"${SHA_File}" 2>&1 | grep OK)" = "" ]
+  cd "$(downloadDir)" || exit
+  if [ ! "$(sha512sum -c "${SHA_File}" 2>&1 | grep OK)" = "" ]
   then
     echo -e "Success\n"
   else

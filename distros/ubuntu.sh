@@ -9,16 +9,17 @@ URL=""
 SHA_File="SHA256SUMS"
 SHA_GPG_File="${SHA_File}.gpg"
 
+# Check for latest version
 chkVer() {
-  echo -e "\nSelect whether to download LTS or Non-LTS"
-  echo -e "1. LTS\n2. Non-LTS\n"
-  read -p "Enter 1 or 2: " yesno
-
   echo -e "Checking for latest version ..."
   echo -e "This may take a while ...\n"
   curl -s "https://ubuntu.com/download/desktop" > /tmp/scrape
 
-  if [ "$yesno" -eq 1 ]
+  echo -e "\nSelect whether to download LTS or Non-LTS"
+  echo -e "1. LTS\n2. Non-LTS\n"
+  read -p "Enter 1 or 2: " lts
+
+  if [ "$lts" -eq 1 ]
   then
     UbuntuVer=$(grep '<h2>Ubuntu' /tmp/scrape | #Returns 3 lines
                 head -n 1 | #Keeps only the first line
@@ -65,19 +66,15 @@ chkAuth() {
   successFail
 
   echo -e "\nChecking authenticity of the downloaded ISO ...\n"
-  if [ ! "$(gpg --keyid-format long --verify "$(downloadDir)"/"${SHA_GPG_File}" "$(downloadDir)"/${SHA_File} | grep -Fq "Good signature")" = "" ]
-  then
-    echo -e "Success\n"
-  else
-    echo -e "Failed\n"
-    echo -e "ISO downloaded is not authentic.\n"
-  fi
+  cd "$(downloadDir)" || exit
+  gpg --keyid-format long --verify ${SHA_GPG_File} ${SHA_File}
 }
 
 # Check integrity of downloaded ISO
 chkInt() {
   echo -e "\nChecking integrity of the downloaded ISO ...\n"
-  if [ ! "$(sha256sum -c "$(downloadDir)"/${SHA_File} 2>&1 | grep OK)" = "" ]
+  cd "$(downloadDir)" || exit
+  if [ ! "$(sha256sum -c ${SHA_File} 2>&1 | grep OK)" = "" ]
   then
     echo -e "Success\n"
   else

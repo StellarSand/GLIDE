@@ -33,7 +33,7 @@ chkVer() {
 
   ISO="Fedora-Workstation-Live-x86_64-${FedoraVer}-${SubVer}.iso"
   URL="https://download.fedoraproject.org/pub/fedora/linux/releases/${FedoraVer}/Workstation/x86_64/iso"
-  Checksum="Fedora-Workstation-${FedoraVer}-${SubVer}-x86_64-Checksum"
+  Checksum="Fedora-Workstation-${FedoraVer}-${SubVer}-x86_64-CHECKSUM"
   Checksum_URL="https://getfedora.org/static/checksums/${FedoraVer}/iso"
 
 }
@@ -52,24 +52,23 @@ downloadChecksum() {
   successFail
 }
 
-chkAuth() {
-  echo -e "\nImporting GPG keys ...\n"
+# Download GPG file
+downloadGPG() {
+  echo -e "\nDownloading GPG file to $(downloadDir)\n"
   curl -L -o "$(downloadDir)"/${GPG_File} ${GPG_URL}
   successFail
+}
 
+chkAuth() {
   echo -e "\nChecking authenticity of the downloaded iso ...\n"
-  if [ ! "$(gpgv --keyring "$(downloadDir)"/fedora.gpg "$(downloadDir)"/*-CHECKSUM | grep -Fq "Good signature")" = "" ]
-  then
-    echo -e "Success\n"
-  else
-    echo -e "Failed\n"
-    echo -e "ISO downloaded is not authentic.\n"
-  fi
+  cd "$(downloadDir)" || exit
+  gpgv --keyring ./fedora.gpg *-CHECKSUM
 }
 
 chkInt() {
   echo -e "\nChecking integrity of the downloaded iso ...\n"
-  if [ ! "$(sha256sum -c "$(downloadDir)"/*-Checksum 2>&1 | grep OK)" = "" ]
+  cd "$(downloadDir)" || exit
+  if [ ! "$(sha256sum -c *-CHECKSUM 2>&1 | grep OK)" = "" ]
   then
     echo -e "Success\n"
   else
@@ -81,6 +80,7 @@ chkInt() {
 chkVer
 downloadISO
 downloadChecksum
+downloadGPG
 chkAuth
 chkInt
 

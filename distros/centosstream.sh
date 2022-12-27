@@ -4,7 +4,7 @@ source ./common_utils.sh
 
 ISO=""
 URL=""
-SHA_File="SHA256SUM"
+SHA_File=""
 
 # Check for latest version
 chkVer() {
@@ -22,6 +22,7 @@ chkVer() {
 
   ISO="CentOS-Stream-${CentStreamVer}-latest-x86_64-dvd1.iso"
   URL="https://mirrors.centos.org/mirrorlist?path=/${CentStreamVer}-stream/BaseOS/x86_64/iso"
+  SHA_File="${ISO}.SHA256SUM"
 
 }
 
@@ -35,13 +36,41 @@ downloadISO() {
 # Download SHA File
 downloadSHA() {
   echo -e "\nDownloading SHA file to $(downloadDir)\n"
-  curl -L -o "$(downloadDir)"/$SHA_File "${URL}"/${SHA_File}
+  curl -L -o "$(downloadDir)"/"$SHA_File" "${URL}"/"${SHA_File}"
   successFail
+}
+
+# Check authenticity of downloaded iso
+chkAuth() {
+  echo -e "\nChecking authenticity of the downloaded ISO ...\n"
+  cd "$(downloadDir)" || exit
+  if [ "$(sha256sum "${ISO}")" == "$(cat "${SHA_File}")" ]
+  then
+    echo -e "Success\n"
+  else
+    echo -e "Failed\n"
+    echo -e "ISO downloaded is not authentic.\n"
+  fi
+}
+
+# Check integrity of downloaded ISO
+chkInt() {
+  echo -e "\nChecking integrity of the downloaded ISO ...\n"
+  cd "$(downloadDir)" || exit
+  if [ ! "$(sha256sum -c "${SHA_File}" 2>&1 | grep OK)" = "" ]
+  then
+    echo -e "Success\n"
+  else
+    echo -e "Failed\n"
+    echo -e "The ISO file has been modified or incorrectly downloaded.\n"
+  fi
 }
 
 chkVer
 downloadISO
 downloadSHA
+chkAuth
+chkInt
 
 cleanup
 

@@ -4,7 +4,7 @@ successFail() {
 
 if [ $? -eq 0 ]
 then
-	echo -e "DONE.\n"
+	echo -e "Done.\n"
 else
 	echo -e "Some error occurred performing the task.\n"
 fi

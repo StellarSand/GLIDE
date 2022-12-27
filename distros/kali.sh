@@ -50,25 +50,21 @@ downloadGPG() {
 }
 
 # Check authenticity of downloaded iso
-chk_auth() {
+chkAuth() {
   echo -e "\nAdding GPG keys ...\n"
   gpg --keyid-format long --keyserver hkps://keyserver.ubuntu.com --recv-key 0x"${Kali_GKey}"
   successFail
 
   echo -e "\nChecking authenticity of the downloaded ISO ...\n"
-  if [ ! "$(gpg --keyid-format long --verify "$(downloadDir)"/"${SHA_GPG_File}" "$(downloadDir)"/${SHA_File} | grep -Fq "Good signature")" = "" ]
-  then
-    echo -e "Success\n"
-  else
-    echo -e "Failed\n"
-    echo -e "ISO downloaded is not authentic.\n"
-  fi
+  cd "$(downloadDir)" || exit
+  gpg --keyid-format long --verify ${SHA_GPG_File} ${SHA_File}
 }
 
 # Check integrity of downloaded ISO
-chk_int() {
+chkInt() {
   echo -e "\nChecking integrity of the downloaded ISO ...\n"
-  if [ ! "$(sha256sum -c "$(downloadDir)"/${SHA_File} 2>&1 | grep OK)" = "" ]
+  cd "$(downloadDir)" || exit
+  if [ ! "$(sha256sum -c ${SHA_File} 2>&1 | grep OK)" = "" ]
   then
     echo -e "Success\n"
   else
@@ -81,8 +77,8 @@ chkVer
 downloadISO
 downloadSHA
 downloadGPG
-chk_auth
-chk_int
+chkAuth
+chkInt
 
 cleanup
 
