@@ -2,36 +2,63 @@
 
 source ./common_utils.sh
 
-FedoraVer=$(version Fedora)
-
-ISO="Fedora-Workstation-Live-x86_64-${FedoraVer}-1.2.iso"
-URL="https://download.fedoraproject.org/pub/fedora/linux/releases/${FedoraVer}/Workstation/x86_64/iso"
-Checksum="Fedora-Workstation-${FedoraVer}-1.2-x86_64-Checksum"
-Checksum_URL="https://getfedora.org/static/checksums/${FedoraVer}/iso"
+ISO=""
+URL=""
+Checksum=""
+Checksum_URL=""
 GPG_File="fedora.gpg"
 GPG_URL="https://getfedora.org/static/${GPG_File}"
 
+# Check for latest version
+chkVer() {
+  echo -e "Checking for latest version ..."
+  echo -e "This may take a while ...\n"
+  curl -s "https://alt.fedoraproject.org/" > /tmp/scrape
+
+  FedoraVer=$(while read -r;
+           do
+             sed -n '/Fedora-Everything/,$p' | #Removes everything before "Fedora-Everything" line
+             sed -n '/ <\//q;p' | #Removes everything after "</"and including this line
+             sed 's/.*netinst-x86_64-//' | #Removes everything before and including "netinst-x86_64-"
+             sed 's/-.*//'; #Only keeps main version like "37"
+           done < /tmp/scrape)
+
+  SubVer=$(while read -r;
+           do
+             sed -n '/Fedora-Everything/,$p' | #Removes everything before "Fedora-Everything" line
+             sed -n '/ <\//q;p' | #Removes everything after "</"and including this line
+             sed "s/.*x86_64-${FedoraVer}-//" | #Removes everything before "x86_64_37-"
+             sed 's/.iso".*//'; #Only keeps sub version like "1.7"
+           done < /tmp/scrape)
+
+  ISO="Fedora-Workstation-Live-x86_64-${FedoraVer}-${SubVer}.iso"
+  URL="https://download.fedoraproject.org/pub/fedora/linux/releases/${FedoraVer}/Workstation/x86_64/iso"
+  Checksum="Fedora-Workstation-${FedoraVer}-${SubVer}-x86_64-Checksum"
+  Checksum_URL="https://getfedora.org/static/checksums/${FedoraVer}/iso"
+
+}
+
 # Download ISO
 downloadISO() {
-  echo -e "\nDownloading ISO to $(DownloadDir)\n"
-  curl -L -o "$(DownloadDir)"/"${ISO}" "${URL}"/"${ISO}"
-  success_fail
+  echo -e "\nDownloading ISO to $(downloadDir)\n"
+  curl -L -o "$(downloadDir)"/"${ISO}" "${URL}"/"${ISO}"
+  successFail
 }
 
 # Download Checksum
 downloadChecksum() {
-  echo -e "\nDownloading checksum to $(DownloadDir)\n"
-  curl -L -o "$(DownloadDir)"/"${Checksum}" "${Checksum_URL}"/"${Checksum}"
-  success_fail
+  echo -e "\nDownloading checksum to $(downloadDir)\n"
+  curl -L -o "$(downloadDir)"/"${Checksum}" "${Checksum_URL}"/"${Checksum}"
+  successFail
 }
 
-chk_auth() {
+chkAuth() {
   echo -e "\nImporting GPG keys ...\n"
-  curl -L -o "$(DownloadDir)"/${GPG_File} ${GPG_URL}
-  success_fail
+  curl -L -o "$(downloadDir)"/${GPG_File} ${GPG_URL}
+  successFail
 
   echo -e "\nChecking authenticity of the downloaded iso ...\n"
-  if [ ! "$(gpgv --keyring "$(DownloadDir)"/fedora.gpg "$(DownloadDir)"/*-CHECKSUM | grep -Fq "Good signature")" = "" ]
+  if [ ! "$(gpgv --keyring "$(downloadDir)"/fedora.gpg "$(downloadDir)"/*-CHECKSUM | grep -Fq "Good signature")" = "" ]
   then
     echo -e "Success\n"
   else
@@ -40,9 +67,9 @@ chk_auth() {
   fi
 }
 
-chk_int() {
+chkInt() {
   echo -e "\nChecking integrity of the downloaded iso ...\n"
-  if [ ! "$(sha256sum -c "$(DownloadDir)"/*-Checksum 2>&1 | grep OK)" = "" ]
+  if [ ! "$(sha256sum -c "$(downloadDir)"/*-Checksum 2>&1 | grep OK)" = "" ]
   then
     echo -e "Success\n"
   else
@@ -51,9 +78,12 @@ chk_int() {
   fi
 }
 
+chkVer
 downloadISO
 downloadChecksum
-chk_auth
-chk_int
+chkAuth
+chkInt
+
+cleanup
 
 exit 0

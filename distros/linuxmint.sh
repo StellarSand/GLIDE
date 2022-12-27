@@ -2,43 +2,61 @@
 
 source ./common_utils.sh
 
-LMintVer=$(version Linux_Mint)
 LMint_GKey=$(GKey Linux_Mint)
 
-ISO="linuxmint-${LMintVer}-cinnamon-64bit.iso"
-URL="https://mirrors.layeronline.com/linuxmint/stable/${LMintVer}"
+ISO=""
+URL=""
 SHA_File="sha256sum.txt"
 SHA_GPG_File="${SHA_File}.gpg"
 
+# Check for latest version
+chkVer() {
+  echo -e "Checking for latest version ..."
+  echo -e "This may take a while ...\n"
+  curl -s "https://linuxmint.com/download.php" > /tmp/scrape
+
+  LMintVer=$(while read -r;
+            do
+              sed -n '/Download/,$p' | #Removes everything before this line
+              sed -n '/<meta/q;p' | #Removes everything after "<meta" including this line
+              sed 's/.*Mint //' | #Removes everything before ver no.
+              sed 's/  -.*//'; #Removes everything after version number
+            done < /tmp/scrape)
+
+  ISO="linuxmint-${LMintVer}-cinnamon-64bit.iso"
+  URL="https://mirrors.layeronline.com/linuxmint/stable/${LMintVer}"
+
+}
+
 # Download ISO
 downloadISO() {
-  echo -e "\nDownloading ISO to $(DownloadDir)\n"
-  curl -L -o "$(DownloadDir)"/"${ISO}" "${URL}"/"${ISO}"
-  success_fail
+  echo -e "\nDownloading ISO to $(downloadDir)\n"
+  curl -L -o "$(downloadDir)"/"${ISO}" "${URL}"/"${ISO}"
+  successFail
 }
 
 # Download SHA File
 downloadSHA() {
-  echo -e "\nDownloading SHA file to $(DownloadDir)\n"
-  curl -L -o "$(DownloadDir)"/${SHA_File} "${URL}"/${SHA_File}
-  success_fail
+  echo -e "\nDownloading SHA file to $(downloadDir)\n"
+  curl -L -o "$(downloadDir)"/${SHA_File} "${URL}"/${SHA_File}
+  successFail
 }
 
 # Download GPG file
 downloadGPG() {
-  echo -e "\nDownloading GPG file to $(DownloadDir)\n"
-  curl -L -o "$(DownloadDir)"/"${SHA_GPG_File}" "${URL}"/"${SHA_GPG_File}"
-  success_fail
+  echo -e "\nDownloading GPG file to $(downloadDir)\n"
+  curl -L -o "$(downloadDir)"/"${SHA_GPG_File}" "${URL}"/"${SHA_GPG_File}"
+  successFail
 }
 
 # Check authenticity of downloaded iso
-chk_auth() {
+chkAuth() {
   echo -e "\nAdding GPG keys ...\n"
   gpg --keyid-format long --keyserver hkps://keyserver.ubuntu.com --recv-key 0x"${LMint_GKey}"
-  success_fail
+  successFail
 
   echo -e "\nChecking authenticity of the downloaded ISO ...\n"
-  if [ ! "$(gpg --keyid-format long --verify "$(DownloadDir)"/"${SHA_GPG_File}" "$(DownloadDir)"/${SHA_File} | grep -Fq "Good signature")" = "" ]
+  if [ ! "$(gpg --keyid-format long --verify "$(downloadDir)"/"${SHA_GPG_File}" "$(downloadDir)"/${SHA_File} | grep -Fq "Good signature")" = "" ]
   then
     echo -e "Success\n"
   else
@@ -48,9 +66,9 @@ chk_auth() {
 }
 
 # Check integrity of downloaded ISO
-chk_int() {
+chkInt() {
   echo -e "\nChecking integrity of the downloaded ISO ...\n"
-  if [ ! "$(sha256sum -c "$(DownloadDir)"/${SHA_File} 2>&1 | grep OK)" = "" ]
+  if [ ! "$(sha256sum -c "$(downloadDir)"/${SHA_File} 2>&1 | grep OK)" = "" ]
   then
     echo -e "Success\n"
   else
@@ -59,10 +77,13 @@ chk_int() {
   fi
 }
 
+chkVer
 downloadISO
 downloadSHA
 downloadGPG
-chk_auth
-chk_int
+chkAuth
+chkInt
+
+cleanup
 
 exit 0

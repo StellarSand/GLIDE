@@ -121,15 +121,17 @@ fi
 if [ ! -d "$DefDnldDir" ]
 then
 	echo -e "\n$DefDnldDir does not exist.\n"
+	echo -e "A default directory is needed to download files.\n"
 	read -p "Create $DefDnldDir? [y/n]: " yesno
 	if [[ "$yesno" == "y" || "$yesno" == "yes" ]]
 	then
 		echo -e "Creating $DefDnldDir ...\n"
 		mkdir "$DefDnldDir"
-		success_fail
+		successFail
 	else
-	  echo -e "Set a default directory to download files to using "
-		echo -e "\nExiting script ...\n"
+	  echo -e "Set a default directory to download files\n"
+	  echo -e "Try './glide -h' for more information.\n"
+		echo -e "Exiting script ...\n"
 		exit 1
 	fi
 fi
@@ -139,42 +141,42 @@ fi
 case $Distro in
 
 	"arch")
-	  exec_perm distros/arch.sh
+	  execPerm distros/arch.sh
 	  ./distros/arch.sh
 	;;
 
 	"centosstream")
-	  exec_perm distros/centosstream.sh
+	  execPerm distros/centosstream.sh
     ./distros/centosstream.sh
 	;;
 
 	"debian")
-	  exec_perm distros/debian.sh
+	  execPerm distros/debian.sh
     ./distros/debian.sh
 	;;
 
 	"endeavouros")
-	  exec_perm distros/endeavouros.sh
+	  execPerm distros/endeavouros.sh
     ./distros/endeavouros.sh
 	;;
 
 	"fedora")
-		exec_perm distros/fedora.sh
+		execPerm distros/fedora.sh
     ./distros/fedora.sh
 	;;
 
 	"kali")
-	  exec_perm distros/kali.sh
+	  execPerm distros/kali.sh
     ./distros/kali.sh
 	;;
 
 	"linuxmint")
-	  exec_perm distros/linuxmint.sh
+	  execPerm distros/linuxmint.sh
     ./distros/linuxmint.sh
 	;;
 	
 	"ubuntu")
-	  exec_perm distros/ubuntu.sh
+	  execPerm distros/ubuntu.sh
     ./distros/ubuntu.sh
 	;;
 

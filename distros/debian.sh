@@ -2,36 +2,52 @@
 
 source ./common_utils.sh
 
-DebianVer=$(version Debian)
 Debian_GKey=$(GKey Debian)
 
-ISO="debian-${DebianVer}-amd64-DVD-1.iso"
-URL="https://debian-cd.debian.net/debian-cd/${DebianVer}/amd64/iso-dvd"
+ISO=""
+URL="https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd"
 SHA_File="SHA512SUMS"
-Sig_File="SHA512SUMS.sign"
+Sig_File="${SHA_File}.sign"
+
+# Check for latest version
+chkVer() {
+  echo -e "Checking for latest version ..."
+  echo -e "This may take a while ...\n"
+  curl -s "https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd/" > /tmp/scrape
+
+  DebianVer=$(while read -r;
+              do
+                sed -n '/<a href="debian-/,$p' | #Removes everything before this line
+                sed -n '/indexbreakrow/q;p' | #Removes everything after "indexbreakrow" including this line
+                sed 's/.*debian-//' | #Removes everything before version number
+                sed 's/-.*//'; #Removes everything after version number
+              done < /tmp/scrape)
+
+  ISO="debian-${DebianVer}-amd64-DVD-1.iso"
+}
 
 # Download ISO
 downloadISO() {
-  echo -e "\nDownloading ISO to $(DownloadDir)\n"
-  curl -L -o "$(DownloadDir)"/"${ISO}" "${URL}"/"${ISO}"
-  success_fail
+  echo -e "\nDownloading ISO to $(downloadDir)\n"
+  curl -L -o "$(downloadDir)"/"${ISO}" "${URL}"/"${ISO}"
+  successFail
 }
 
 # Download Sig file
 downloadSig() {
-  echo -e "\nDownloading Sig file to $(DownloadDir)\n"
-  curl -L -o "$(DownloadDir)"/"${Sig_File}" "${URL}"/"${Sig_File}"
-  success_fail
+  echo -e "\nDownloading Sig file to $(downloadDir)\n"
+  curl -L -o "$(downloadDir)"/"${Sig_File}" "${URL}"/"${Sig_File}"
+  successFail
 }
 
 # Check authenticity of downloaded iso
-chk_auth() {
+chkAuth() {
   echo -e "\nAdding GPG keys ...\n"
   gpg --keyid-format long --keyserver hkps://keyserver.ubuntu.com --recv-key 0x"$Debian_GKey"
-  success_fail
+  successFail
 
   echo -e "\nChecking authenticity of the downloaded ISO ...\n"
-  if [ ! "$(gpg --keyid-format long --verify "$(DownloadDir)"/"${Sig_File}" "$(DownloadDir)"/$SHA_File | grep -Fq "Good signature")" = "" ]
+  if [ ! "$(gpg --keyid-format long --verify "$(downloadDir)"/"${Sig_File}" "$(downloadDir)"/${SHA_File} | grep -Fq "Good signature")" = "" ]
   then
     echo -e "Success\n"
   else
@@ -41,9 +57,9 @@ chk_auth() {
 }
 
 # Check integrity of downloaded ISO
-chk_int() {
+chkInt() {
   echo -e "\nChecking integrity of the downloaded ISO ...\n"
-  if [ ! "$(sha512sum -c "$(DownloadDir)"/$SHA_File 2>&1 | grep OK)" = "" ]
+  if [ ! "$(sha512sum -c "$(downloadDir)"/${SHA_File} 2>&1 | grep OK)" = "" ]
   then
     echo -e "Success\n"
   else
@@ -52,9 +68,12 @@ chk_int() {
   fi
 }
 
+chkVer
 downloadISO
 downloadSig
-chk_auth
-chk_int
+chkAuth
+chkInt
+
+cleanup
 
 exit 0

@@ -1,7 +1,7 @@
 # GLIDE
 **G**NU/**L**inux **I**SO **D**ownload**e**r
 
-Download a GNU/Linux ISO directly from terminal and auto check it's authenticity and integrity.
+Download latest GNU/Linux ISO directly from terminal and auto check its authenticity and integrity.
 
 
 
@@ -16,18 +16,17 @@ Download a GNU/Linux ISO directly from terminal and auto check it's authenticity
 
 
 ## Available distros to download
+All downloaded files are always the latest ones.
 
-Distro | Version
---- | ---
-[Arch Linux](https://archlinux.org/) | 2022.12.01
-[CentOS Stream](https://www.centos.org/) | 9
-[Debian](https://www.debian.org/) | 11.6.0
-[Endeavour OS](https://endeavouros.com/) | 22.1
-[Fedora Workstation](https://getfedora.org/) | 37
-[Kali Linux](https://www.kali.org/) | 2022.4
-[Linux Mint](https://linuxmint.com/) | 21.1
-[Ubuntu](https://ubuntu.com/) | 22.10
-[Ubuntu LTS](https://ubuntu.com/) | 22.04.1
+- [Arch Linux](https://archlinux.org/)
+- [CentOS Stream](https://www.centos.org/)
+- [Debian](https://www.debian.org/)
+- [Endeavour OS](https://endeavouros.com/)
+- [Fedora Workstation](https://getfedora.org/)
+- [Kali Linux](https://www.kali.org/)
+- [Linux Mint](https://linuxmint.com/)
+- [Ubuntu](https://ubuntu.com/)
+- [Ubuntu LTS](https://ubuntu.com/)
 
 
 
@@ -35,22 +34,22 @@ Distro | Version
 To use this script
 
 **1. Clone this repo:**
-```sh
+```
 git clone https://github.com/the-weird-aquarian/GLIDE.git
 ```
 
 **2. Move into the project directory:**
-```sh
+```
 cd GLIDE
 ```
 
 **3. Give executable permissions to the script:**
-```sh
+```
 chmod +x glide
 ```
 
 **4. Run the script:**
-```sh
+```
 ./glide -n <distro name>
 ```
 
@@ -66,13 +65,13 @@ chmod +x glide
 
 
 
-## Example usage:
+## Example usage
 - To show available distro list:
-```sh
+```
 ./glide -l
 ```
 - To download Linux Mint ISO:
-```sh
+```
 ./glide -n linuxmint
 ```
 
@@ -80,12 +79,9 @@ chmod +x glide
 
 ## Roadmap
 - More distros will be added soon.
-- Currently only 64-bit ISO are downloaded. ARM ISO will be added in future.
+- Currently only 64-bit ISO are downloaded. ARM ISO will be added in the future.
 
 
 
 ## Contributing
-- The versions file is located at [conf/versions](https://github.com/the-weird-aquarian/GLIDE/blob/main/conf/versions).
-- Pull requests can be submitted [here](https://github.com/the-weird-aquarian/GLIDE/pulls)
-
-Any contribution to the project will be highly appreciated.
+Pull requests can be submitted [here](https://github.com/the-weird-aquarian/GLIDE/pulls). Any contribution to the project will be highly appreciated.
