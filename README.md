@@ -25,6 +25,7 @@ All downloaded files are always the latest ones.
 - [Fedora Workstation](https://getfedora.org/)
 - [Kali Linux](https://www.kali.org/)
 - [Linux Mint](https://linuxmint.com/)
+- [Manjaro](https://manjaro.org/)
 - [Ubuntu](https://ubuntu.com/)
 - [Ubuntu LTS](https://ubuntu.com/)
 

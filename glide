@@ -7,7 +7,7 @@ DefDnldDir=$(xdg-user-dir DOWNLOAD)
 ConfigDir="$HOME/.config/GLIDE"
 ConfigDirFile="$ConfigDir/dnld_dir"
 
-has_command() {
+hasCommand() {
 command -v "$1" > /dev/null
 }
 
@@ -33,7 +33,7 @@ EOF
 }
 
 # Show list of available distros
-list_distros() {
+listDistros() {
 
 cat << EOF
 
@@ -64,7 +64,7 @@ case "$option" in
 	;;
 	
 	l)
-		list_distros
+		listDistros
 		exit 0
 	;;
 	
@@ -102,7 +102,7 @@ then
 fi
 
 # Check curl package
-if ! has_command "curl"
+if ! hasCommand "curl"
 then
 	echo -e "\ncurl package does not exist. Please install it first and try again.\n"
 	echo -e "Exiting script ...\n"
@@ -110,7 +110,7 @@ then
 fi
 
 # Check GPG package
-if ! has_command "gpg"
+if ! hasCommand "gpg"
 then
 	echo -e "\ngpg package does not exist. Please install it first and try again.\n"
 	echo -e "Exiting script ...\n"
@@ -174,10 +174,21 @@ case $Distro in
 	  execPerm distros/linuxmint.sh
     ./distros/linuxmint.sh
 	;;
+
+  "manjaro")
+    execPerm distros/manjaro.sh
+    ./distros/manjaro.sh
+  ;;
 	
 	"ubuntu")
 	  execPerm distros/ubuntu.sh
     ./distros/ubuntu.sh
+	;;
+
+  *)
+		echo -e "\nInvalid distro name\n"
+		echo -e "Try './glide -l' to see the list of available distros.\n"
+		exit 1
 	;;
 
 esac
