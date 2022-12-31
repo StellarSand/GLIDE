@@ -1,15 +1,15 @@
 # GLIDE
 **G**NU/**L**inux **I**SO **D**ownload**e**r
 
-Download latest GNU/Linux ISO directly from terminal and auto check its authenticity and integrity.
+GLIDE is a command line tool that allows you to easily download the latest ISO images for various GNU/Linux distributions directly from the terminal. It also automatically checks the authenticity and integrity of the downloaded files to ensure that you are getting a genuine and unmodified copy of the operating system.
 
 
 
 ## Contents
 - [Available distros to download](#available-distros-to-download)
+- [Installation](#installation)
 - [Usage](#usage)
-- [List of available options](#list-of-available-options)
-- [Example usage](#example-usage)
+- [Uninstall](#uninstall)
 - [Roadmap](#roadmap)
 - [Contributing](#contributing)
 
@@ -31,9 +31,7 @@ All downloaded files are always the latest ones.
 
 
 
-## Usage
-To use this script
-
+## Installation
 **1. Clone this repo:**
 ```
 git clone https://github.com/the-weird-aquarian/GLIDE.git
@@ -44,36 +42,64 @@ git clone https://github.com/the-weird-aquarian/GLIDE.git
 cd GLIDE
 ```
 
-**3. Give executable permissions to the script:**
+**3. Give executable permissions to the install script:**
 ```
-chmod +x glide
-```
-
-**4. Run the script:**
-```
-./glide -n <distro name>
+chmod +x install.sh
 ```
 
-
-
-## List of available options
+**4. Run the install script:**
 ```
- -h       Print usage
- -l       Show available distro list
- -d       Change default download directory
- -n       Distro name (from available list)
+./install.sh
 ```
 
 
 
-## Example usage
+## Usage
+Using GLIDE is easy, once installed.
+
+```
+glide -n <distro name>
+```
+
+Downloading to a specific directory can be done using the `-d` or `--directory` option
+```
+glide -n <distro name> -d <directory>
+```
+
+**Examples:**
 - To show available distro list:
 ```
-./glide -l
+glide -l
 ```
+
 - To download Linux Mint ISO:
 ```
-./glide -n linuxmint
+glide -n linuxmint
+```
+
+- To download Linux Mint ISO to specific directory:
+```
+glide -n linuxmint -d /home/user/Desktop
+```
+
+
+
+## Uninstall
+If GLIDE has been installed, you can remove it by:
+
+**1. Move into the project directory:**
+```
+cd GLIDE
+```
+
+**2. Give executable permissions to the uninstall script:**
+```
+chmod +x uninstall.sh
+```
+
+**3. Run the uninstall script:**
+```
+./uninstall.sh
 ```
 
 

@@ -1,32 +1,11 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-source ./common_utils.sh
+source /usr/local/lib/GLIDE/common_utils.sh
 
 LMint_GKey=$(GKey LinuxMint)
 
-ISO=""
-URL=""
 SHA_File="sha256sum.txt"
 SHA_GPG_File="${SHA_File}.gpg"
-
-# Check for latest version
-chkVer() {
-  echo -e "Checking for latest version ..."
-  echo -e "This may take a while ...\n"
-  curl -s "https://linuxmint.com/download.php" > /tmp/scrape
-
-  LMintVer=$(while read -r;
-            do
-              sed -n '/Download/,$p' | #Removes everything before this line
-              sed -n '/<meta/q;p' | #Removes everything after "<meta" including this line
-              sed 's/.*Mint //' | #Removes everything before ver no.
-              sed 's/  -.*//'; #Removes everything after version number
-            done < /tmp/scrape)
-
-  ISO="linuxmint-${LMintVer}-cinnamon-64bit.iso"
-  URL="https://mirrors.layeronline.com/linuxmint/stable/${LMintVer}"
-
-}
 
 # Download ISO
 downloadISO() {
@@ -73,7 +52,19 @@ chkInt() {
   fi
 }
 
-chkVer
+chkVer "https://linuxmint.com/download.php"
+
+LMintVer=$(while read -r
+          do
+            sed -n '/Download/,$p' | #Removes everything before this line
+            sed -n '/<meta/q;p' | #Removes everything after "<meta" including this line
+            sed 's/.*Mint //' | #Removes everything before ver no.
+            sed 's/  -.*//'; #Removes everything after version number
+          done < /tmp/scrape)
+
+ISO="linuxmint-${LMintVer}-cinnamon-64bit.iso"
+URL="https://mirrors.layeronline.com/linuxmint/stable/${LMintVer}"
+
 downloadISO
 downloadSHA
 downloadGPG

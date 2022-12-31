@@ -1,39 +1,13 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-source ./common_utils.sh
+source /usr/local/lib/GLIDE/common_utils.sh
 
-ManjaroVer=""
-SubVer=""
 Manjaro_GKey=$(GKey Manjaro)
 
 ISO=""
 URL=""
 SHA_File=""
 Sig_File=""
-
-# Check for latest version
-chkVer() {
-  echo -e "Checking for latest version ..."
-  echo -e "This may take a while ...\n"
-  curl -s "https://manjaro.org/download/" > /tmp/scrape
-
-  ManjaroVer=$(while read -r;
-               do
-                sed -n '/<a id="btn-ft/,$p' | #Removes everything before "<a id="btn-ft" line
-                sed -n '/<i class/q;p' | #Removes everything after & including "<i class" line
-                sed 's/.*manjaro-kde-//' | #Removes everything before & including "manjaro-kde-"
-                sed 's/-.*//'; #Removes everything after main version like 22.0
-               done < /tmp/scrape)
-
-  SubVer=$(while read -r;
-           do
-            sed -n '/<a id="btn-ft/,$p' | #Removes everything before "<a id="btn-ft" line
-            sed -n '/<i class/q;p' | #Removes everything after & including "<i class" line
-            sed "s/.*${ManjaroVer}-//" | #Removes everything before sub version
-            sed 's/.iso.*//'; #Removes everything after ".iso"
-           done < /tmp/scrape)
-
-}
 
 # Select desktop environment
 selDE() {
@@ -113,7 +87,24 @@ chkInt() {
   fi
 }
 
-chkVer
+chkVer "https://manjaro.org/download/"
+
+ManjaroVer=$(while read -r
+             do
+               sed -n '/<a id="btn-ft/,$p' | #Removes everything before "<a id="btn-ft" line
+               sed -n '/<i class/q;p' | #Removes everything after & including "<i class" line
+               sed 's/.*manjaro-kde-//' | #Removes everything before & including "manjaro-kde-"
+               sed 's/-.*//'; #Removes everything after main version like 22.0
+             done < /tmp/scrape)
+
+SubVer=$(while read -r
+         do
+           sed -n '/<a id="btn-ft/,$p' | #Removes everything before "<a id="btn-ft" line
+           sed -n '/<i class/q;p' | #Removes everything after & including "<i class" line
+           sed "s/.*${ManjaroVer}-//" | #Removes everything before sub version
+           sed 's/.iso.*//'; #Removes everything after ".iso"
+         done < /tmp/scrape)
+
 selDE
 downloadISO
 downloadSHA

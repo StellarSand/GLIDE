@@ -1,32 +1,10 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-source ./common_utils.sh
+source /usr/local/lib/GLIDE/common_utils.sh
 
 Arch_GKey=$(GKey Arch)
 
-ISO=""
-URL=""
 SHA_File="sha256sums.txt"
-
-# Check for latest version
-chkVer() {
-  echo -e "Checking for latest version ..."
-  echo -e "This may take a while ...\n"
-  curl -s "https://archlinux.org/download/" > /tmp/scrape
-
-  ArchVer=$(while read -r;
-            do
-              sed -n '/https:\/\/geo.mirror.pkgbuild.com\/iso/,$p' | #Removes everything before this line
-              sed -n '/title/q;p' | #Removes everything after "title" including this line
-              sed 's/.*iso\///' | #Removes everything before ver no.
-              sed 's/\/"//'; #Removes /" after version number
-            done < /tmp/scrape)
-
-  ISO="archlinux-$ArchVer-x86_64.iso"
-  URL="https://mirror.rackspace.com/archlinux/iso/$ArchVer"
-  Sig_File="${ISO}.sig"
-
-}
 
 # Download ISO
 downloadISO() {
@@ -74,7 +52,20 @@ chkInt() {
   fi
 }
 
-chkVer
+chkVer "https://archlinux.org/download/"
+
+ArchVer=$(while read -r
+          do
+            sed -n '/https:\/\/geo.mirror.pkgbuild.com\/iso/,$p' | #Removes everything before this line
+            sed -n '/title/q;p' | #Removes everything after "title" including this line
+            sed 's/.*iso\///' | #Removes everything before ver no.
+            sed 's/\/"//'; #Removes /" after version number
+          done < /tmp/scrape)
+
+ISO="archlinux-$ArchVer-x86_64.iso"
+URL="https://mirror.rackspace.com/archlinux/iso/$ArchVer"
+Sig_File="${ISO}.sig"
+
 downloadISO
 downloadSHA
 downloadSig

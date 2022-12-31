@@ -1,30 +1,12 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-source ./common_utils.sh
+source /usr/local/lib/GLIDE/common_utils.sh
 
 Debian_GKey=$(GKey Debian)
 
-ISO=""
 URL="https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd"
 SHA_File="SHA512SUMS"
 Sig_File="${SHA_File}.sign"
-
-# Check for latest version
-chkVer() {
-  echo -e "Checking for latest version ..."
-  echo -e "This may take a while ...\n"
-  curl -s "https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd/" > /tmp/scrape
-
-  DebianVer=$(while read -r;
-              do
-                sed -n '/<a href="debian-/,$p' | #Removes everything before this line
-                sed -n '/indexbreakrow/q;p' | #Removes everything after "indexbreakrow" including this line
-                sed 's/.*debian-//' | #Removes everything before version number
-                sed 's/-.*//'; #Removes everything after version number
-              done < /tmp/scrape)
-
-  ISO="debian-${DebianVer}-amd64-DVD-1.iso"
-}
 
 # Download ISO
 downloadISO() {
@@ -71,7 +53,18 @@ chkInt() {
   fi
 }
 
-chkVer
+chkVer "https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd/"
+
+DebianVer=$(while read -r
+            do
+              sed -n '/<a href="debian-/,$p' | #Removes everything before this line
+              sed -n '/indexbreakrow/q;p' | #Removes everything after "indexbreakrow" including this line
+              sed 's/.*debian-//' | #Removes everything before version number
+              sed 's/-.*//'; #Removes everything after version number
+            done < /tmp/scrape)
+
+ISO="debian-${DebianVer}-amd64-DVD-1.iso"
+
 downloadISO
 downloadSHA
 downloadSig

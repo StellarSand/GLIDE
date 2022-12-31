@@ -1,32 +1,11 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-source ./common_utils.sh
+source /usr/local/lib/GLIDE/common_utils.sh
 
 Kali_GKey=$(GKey Kali)
 
-ISO=""
-URL=""
 SHA_File="SHA256SUMS"
 SHA_GPG_File="${SHA_File}.gpg"
-
-# Check for latest version
-chkVer() {
-  echo -e "Checking for latest version ..."
-  echo -e "This may take a while ...\n"
-  curl -s "https://www.kali.org/get-kali/" > /tmp/scrape
-
-  KaliVer=$(while read -r;
-            do
-              sed -n '/Changelog/,$p' | #Removes everything before this line
-              sed -n '/32-bit/q;p' | #Removes everything after "32-bit" including this line
-              sed 's/.*header-link>Kali Linux //' | #Removes everything before ver no.
-              sed 's/ Changelog.*//'; #Removes everything after version number
-            done < /tmp/scrape)
-
-  ISO="kali-linux-$KaliVer-installer-amd64.iso"
-  URL="https://cdimage.kali.org/kali-$KaliVer"
-
-}
 
 # Download ISO
 downloadISO() {
@@ -73,7 +52,19 @@ chkInt() {
   fi
 }
 
-chkVer
+chkVer "https://www.kali.org/get-kali/"
+
+KaliVer=$(while read -r
+          do
+            sed -n '/Changelog/,$p' | #Removes everything before this line
+            sed -n '/32-bit/q;p' | #Removes everything after "32-bit" including this line
+            sed 's/.*header-link>Kali Linux //' | #Removes everything before ver no.
+            sed 's/ Changelog.*//'; #Removes everything after version number
+          done < /tmp/scrape)
+
+ISO="kali-linux-$KaliVer-installer-amd64.iso"
+URL="https://cdimage.kali.org/kali-$KaliVer"
+
 downloadISO
 downloadSHA
 downloadGPG

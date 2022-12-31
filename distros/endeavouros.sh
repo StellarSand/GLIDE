@@ -1,32 +1,10 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-source ./common_utils.sh
+source /usr/local/lib/GLIDE/common_utils.sh
 
 Endeavour_GKey=$(GKey Endeavour)
 
-ISO=""
 URL="https://github.com/endeavouros-team/ISO/releases/download/1-EndeavourOS-ISO-releases-archive"
-
-# Check for latest version
-chkVer() {
-  echo -e "Checking for latest version ..."
-  echo -e "This may take a while ...\n"
-  curl -s "https://endeavouros.com/latest-release/" > /tmp/scrape
-
-  EndeavourVer=$(while read -r;
-                 do
-                  sed -n '/wp-block-table/,$p' | #Removes everything before this line
-                  sed -n '/<\/div>/q;p' | #Removes everything after "</div>" including this line
-                  sed 's/.*Alpix//' | #Removes everything before & including "Alpix"
-                  sed 's/Download.*//' | #Removes everything after & including "Download"
-                  sed 's/.*EndeavourOS_//' | #Removes everything before & including "EndeavourOS_"
-                  sed 's/.iso.*//'; #Removes everything after & including ".iso"
-                 done < /tmp/scrape)
-
-  ISO="EndeavourOS_${EndeavourVer}.iso"
-  SHA_File="${ISO}.sha512sum"
-  Sig_File="${ISO}.sig"
-}
 
 # Download ISO
 downloadISO() {
@@ -73,7 +51,22 @@ chkInt() {
   fi
 }
 
-chkVer
+chkVer "https://endeavouros.com/latest-release/"
+
+EndeavourVer=$(while read -r
+               do
+                 sed -n '/wp-block-table/,$p' | #Removes everything before this line
+                 sed -n '/<\/div>/q;p' | #Removes everything after "</div>" including this line
+                 sed 's/.*Alpix//' | #Removes everything before & including "Alpix"
+                 sed 's/Download.*//' | #Removes everything after & including "Download"
+                 sed 's/.*EndeavourOS_//' | #Removes everything before & including "EndeavourOS_"
+                 sed 's/.iso.*//'; #Removes everything after & including ".iso"
+               done < /tmp/scrape)
+
+ISO="EndeavourOS_${EndeavourVer}.iso"
+SHA_File="${ISO}.sha512sum"
+Sig_File="${ISO}.sig"
+
 downloadISO
 downloadSHA
 downloadSig

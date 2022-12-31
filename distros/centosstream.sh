@@ -1,30 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-source ./common_utils.sh
-
-ISO=""
-URL=""
-SHA_File=""
-
-# Check for latest version
-chkVer() {
-  echo -e "Checking for latest version ..."
-  echo -e "This may take a while ...\n"
-  curl -s "https://www.centos.org/centos-stream/" > /tmp/scrape
-
-  CentStreamVer=$(while read -r;
-                  do
-                  sed -n '/https:\/\/mirrors.centos.org/,$p' | #Removes everything before this line
-                  sed -n '/http:\/\/mirror.stream/q;p' | #Removes everything after & including this line
-                  sed 's/.*=\///' | #Removes everything before ver no.
-                  sed 's/-.*//'; #Removes everything after version number
-            done < /tmp/scrape)
-
-  ISO="CentOS-Stream-${CentStreamVer}-latest-x86_64-dvd1.iso"
-  URL="https://mirrors.centos.org/mirrorlist?path=/${CentStreamVer}-stream/BaseOS/x86_64/iso"
-  SHA_File="${ISO}.SHA256SUM"
-
-}
+source /usr/local/lib/GLIDE/common_utils.sh
 
 # Download ISO
 downloadISO() {
@@ -66,7 +42,20 @@ chkInt() {
   fi
 }
 
-chkVer
+chkVer "https://www.centos.org/centos-stream/"
+
+CentStreamVer=$(while read -r
+                do
+                  sed -n '/https:\/\/mirrors.centos.org/,$p' | #Removes everything before this line
+                  sed -n '/http:\/\/mirror.stream/q;p' | #Removes everything after & including this line
+                  sed 's/.*=\///' | #Removes everything before ver no.
+                  sed 's/-.*//'; #Removes everything after version number
+                done < /tmp/scrape)
+
+ISO="CentOS-Stream-${CentStreamVer}-latest-x86_64-dvd1.iso"
+URL="https://mirrors.centos.org/mirrorlist?path=/${CentStreamVer}-stream/BaseOS/x86_64/iso"
+SHA_File="${ISO}.SHA256SUM"
+
 downloadISO
 downloadSHA
 chkAuth
