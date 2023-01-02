@@ -2,48 +2,54 @@
 
 source /usr/local/lib/GLIDE/common_utils.sh
 
-LMint_GKey=$(GKey LinuxMint)
-
-SHA_File="sha256sum.txt"
-SHA_GPG_File="${SHA_File}.gpg"
+# Checks disk free space after all files would be downloaded
+chkRemSpace() {
+  echo "Checking available disk space ..."
+  echo -e "This may take a while ...\n"
+  ISOSize=$(dnldFileSize "$URL"/"$ISO")
+  SHASize=$(dnldFileSize "$URL"/"$SHA_File")
+  GPGSize=$(dnldFileSize "$URL"/"$GPG_File")
+  TotalDnldSize=$(awk -v ISOSize="$ISOSize" -v SHASize="$SHASize" -v GPGSize="$GPGSize" 'BEGIN {print ISOSize + SHASize + GPGSize}')
+  RemSpace=$(($(diskFreeSpace)-"$TotalDnldSize"))
+}
 
 # Download ISO
 downloadISO() {
   echo -e "\nDownloading ISO to $(downloadDir)\n"
-  curl -L -o "$(downloadDir)"/"${ISO}" "${URL}"/"${ISO}"
+  curl -L -o "$(downloadDir)"/"$ISO" "$URL"/"$ISO"
   successFail
 }
 
 # Download SHA File
 downloadSHA() {
   echo -e "\nDownloading SHA file to $(downloadDir)\n"
-  curl -L -o "$(downloadDir)"/${SHA_File} "${URL}"/${SHA_File}
+  curl -L -o "$(downloadDir)"/"$SHA_File" "$URL"/"$SHA_File"
   successFail
 }
 
 # Download GPG file
 downloadGPG() {
   echo -e "\nDownloading GPG file to $(downloadDir)\n"
-  curl -L -o "$(downloadDir)"/"${SHA_GPG_File}" "${URL}"/"${SHA_GPG_File}"
+  curl -L -o "$(downloadDir)"/"$GPG_File" "$URL"/"$GPG_File"
   successFail
 }
 
 # Check authenticity of downloaded iso
 chkAuth() {
   echo -e "\nAdding GPG keys ...\n"
-  gpg --keyid-format long --keyserver hkps://keyserver.ubuntu.com --recv-key 0x"${LMint_GKey}"
+  gpg --keyid-format long --keyserver hkps://keyserver.ubuntu.com --recv-key 0x"$LMint_GKey"
   successFail
 
   echo -e "\nChecking authenticity of the downloaded ISO ...\n"
   cd "$(downloadDir)" || exit
-  gpg --keyid-format long --verify "${SHA_GPG_File}" ${SHA_File}
+  gpg --keyid-format long --verify "$GPG_File" "$SHA_File"
 }
 
 # Check integrity of downloaded ISO
 chkInt() {
   echo -e "\nChecking integrity of the downloaded ISO ...\n"
   cd "$(downloadDir)" || exit
-  if [ ! "$(sha256sum -c ${SHA_File} 2>&1 | grep OK)" = "" ]
+  if [ ! "$(sha256sum -c "$SHA_File" 2>&1 | grep OK)" = "" ]
   then
     echo -e "Success\n"
   else
@@ -64,12 +70,23 @@ LMintVer=$(while read -r
 
 ISO="linuxmint-${LMintVer}-cinnamon-64bit.iso"
 URL="https://mirrors.layeronline.com/linuxmint/stable/${LMintVer}"
+SHA_File="sha256sum.txt"
+GPG_File="${SHA_File}.gpg"
+LMint_GKey=$(GKey LinuxMint)
+RemSpace=""
 
-downloadISO
-downloadSHA
-downloadGPG
-chkAuth
-chkInt
+chkRemSpace
+
+if [ "$RemSpace" -ge 0 ]
+then
+  downloadISO
+  downloadSHA
+  downloadGPG
+  chkAuth
+  chkInt
+else
+  calcReqSpace "$RemSpace"
+fi
 
 cleanup
 

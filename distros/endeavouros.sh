@@ -2,28 +2,35 @@
 
 source /usr/local/lib/GLIDE/common_utils.sh
 
-Endeavour_GKey=$(GKey Endeavour)
-
-URL="https://github.com/endeavouros-team/ISO/releases/download/1-EndeavourOS-ISO-releases-archive"
+# Checks disk free space after all files would be downloaded
+chkRemSpace() {
+  echo "Checking available disk space ..."
+  echo -e "This may take a while ...\n"
+  ISOSize=$(dnldFileSize "$URL"/"$ISO")
+  SHASize=$(dnldFileSize "$URL"/"$SHA_File")
+  SigSize=$(dnldFileSize "$URL"/"$Sig_File")
+  TotalDnldSize=$(awk -v ISOSize="$ISOSize" -v SHASize="$SHASize" -v SigSize="$SigSize" 'BEGIN {print ISOSize + SHASize + SigSize}')
+  RemSpace=$(($(diskFreeSpace)-"$TotalDnldSize"))
+}
 
 # Download ISO
 downloadISO() {
   echo -e "\nDownloading ISO to $(downloadDir)\n"
-  curl -L -o "$(downloadDir)"/"${ISO}" "${URL}"/"${ISO}"
+  curl -L -o "$(downloadDir)"/"$ISO" "$URL"/"$ISO"
   successFail
 }
 
 # Download SHA File
 downloadSHA() {
   echo -e "\nDownloading SHA file to $(downloadDir)\n"
-  curl -L -o "$(downloadDir)"/"${SHA_File}" ${URL}/"${SHA_File}"
+  curl -L -o "$(downloadDir)"/"$SHA_File" "$URL"/"$SHA_File"
   successFail
 }
 
 # Download Sig file
 downloadSig() {
   echo -e "\nDownloading Sig file to $(downloadDir)\n"
-  curl -L -o "$(downloadDir)"/"${Sig_File}" "${URL}"/"${Sig_File}"
+  curl -L -o "$(downloadDir)"/"$Sig_File" "$URL"/"$Sig_File"
   successFail
 }
 
@@ -35,14 +42,14 @@ chkAuth() {
 
   echo -e "\nChecking authenticity of the downloaded ISO ...\n"
   cd "$(downloadDir)" || exit
-  gpg --keyid-format long --verify "${Sig_File}"
+  gpg --keyid-format long --verify "$Sig_File"
 }
 
 # Check integrity of downloaded ISO
 chkInt() {
   echo -e "\nChecking integrity of the downloaded ISO ...\n"
   cd "$(downloadDir)" || exit
-  if [ ! "$(sha512sum -c "${SHA_File}" 2>&1 | grep OK)" = "" ]
+  if [ ! "$(sha512sum -c "$SHA_File" 2>&1 | grep OK)" = "" ]
   then
     echo -e "Success\n"
   else
@@ -64,14 +71,24 @@ EndeavourVer=$(while read -r
                done < /tmp/scrape)
 
 ISO="EndeavourOS_${EndeavourVer}.iso"
+URL="https://github.com/endeavouros-team/ISO/releases/download/1-EndeavourOS-ISO-releases-archive"
 SHA_File="${ISO}.sha512sum"
 Sig_File="${ISO}.sig"
+Endeavour_GKey=$(GKey Endeavour)
+RemSpace=""
 
-downloadISO
-downloadSHA
-downloadSig
-chkAuth
-chkInt
+chkRemSpace
+
+if [ "$RemSpace" -ge 0 ]
+then
+  downloadISO
+  downloadSHA
+  downloadSig
+  chkAuth
+  chkInt
+else
+  calcReqSpace "$RemSpace"
+fi
 
 cleanup
 

@@ -2,27 +2,35 @@
 
 source /usr/local/lib/GLIDE/common_utils.sh
 
-GPG_File="fedora.gpg"
-GPG_URL="https://getfedora.org/static/${GPG_File}"
+# Checks disk free space after all files would be downloaded
+chkRemSpace() {
+  echo "Checking available disk space ..."
+  echo -e "This may take a while ...\n"
+  ISOSize=$(dnldFileSize "$URL"/"$ISO")
+  ChecksumSize=$(dnldFileSize "$Checksum_URL"/"$Checksum_File")
+  GPGSize=$(dnldFileSize "$GPG_URL"/"$GPG_File")
+  TotalDnldSize=$(awk -v ISOSize="$ISOSize" -v ChecksumSize="$ChecksumSize" -v GPGSize="$GPGSize" 'BEGIN {print ISOSize + ChecksumSize + GPGSize}')
+  RemSpace=$(($(diskFreeSpace)-"$TotalDnldSize"))
+}
 
 # Download ISO
 downloadISO() {
   echo -e "\nDownloading ISO to $(downloadDir)\n"
-  curl -L -o "$(downloadDir)"/"${ISO}" "${URL}"/"${ISO}"
+  curl -L -o "$(downloadDir)"/"$ISO" "$URL"/"$ISO"
   successFail
 }
 
-# Download Checksum
+# Download Checksum_File
 downloadChecksum() {
   echo -e "\nDownloading checksum to $(downloadDir)\n"
-  curl -L -o "$(downloadDir)"/"${Checksum}" "${Checksum_URL}"/"${Checksum}"
+  curl -L -o "$(downloadDir)"/"$Checksum_File" "$Checksum_URL"/"$Checksum_File"
   successFail
 }
 
 # Download GPG file
 downloadGPG() {
   echo -e "\nDownloading GPG file to $(downloadDir)\n"
-  curl -L -o "$(downloadDir)"/${GPG_File} ${GPG_URL}
+  curl -L -o "$(downloadDir)"/"$GPG_File" "$GPG_URL"/"$GPG_File"
   successFail
 }
 
@@ -64,14 +72,24 @@ SubVer=$(while read -r
 
 ISO="Fedora-Workstation-Live-x86_64-${FedoraVer}-${SubVer}.iso"
 URL="https://download.fedoraproject.org/pub/fedora/linux/releases/${FedoraVer}/Workstation/x86_64/iso"
-Checksum="Fedora-Workstation-${FedoraVer}-${SubVer}-x86_64-CHECKSUM"
+Checksum_File="Fedora-Workstation-${FedoraVer}-${SubVer}-x86_64-CHECKSUM"
 Checksum_URL="https://getfedora.org/static/checksums/${FedoraVer}/iso"
+GPG_File="fedora.gpg"
+GPG_URL="https://getfedora.org/static"
+RemSpace=""
 
-downloadISO
-downloadChecksum
-downloadGPG
-chkAuth
-chkInt
+chkRemSpace
+
+if [ "$RemSpace" -ge 0 ]
+then
+  downloadISO
+  downloadChecksum
+  downloadGPG
+  chkAuth
+  chkInt
+else
+  calcReqSpace "$RemSpace"
+fi
 
 cleanup
 

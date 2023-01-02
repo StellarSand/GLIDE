@@ -2,13 +2,6 @@
 
 source /usr/local/lib/GLIDE/common_utils.sh
 
-Manjaro_GKey=$(GKey Manjaro)
-
-ISO=""
-URL=""
-SHA_File=""
-Sig_File=""
-
 # Select desktop environment
 selDE() {
   echo -e "\nSelect a desktop environment:"
@@ -42,43 +35,54 @@ selDE() {
 
 }
 
+# Checks disk free space after all files would be downloaded
+chkRemSpace() {
+  echo -e "\nChecking available disk space ..."
+  echo -e "This may take a while ...\n"
+  ISOSize=$(dnldFileSize "$URL"/"$ISO")
+  SHASize=$(dnldFileSize "$URL"/"$SHA_File")
+  SigSize=$(dnldFileSize "$URL"/"$Sig_File")
+  TotalDnldSize=$(awk -v ISOSize="$ISOSize" -v SHASize="$SHASize" -v SigSize="$SigSize" 'BEGIN {print ISOSize + SHASize + SigSize}')
+  RemSpace=$(($(diskFreeSpace)-"$TotalDnldSize"))
+}
+
 # Download ISO
 downloadISO() {
   echo -e "\nDownloading ISO to $(downloadDir)\n"
-  curl -L -o "$(downloadDir)"/"${ISO}" "${URL}"/"${ISO}"
+  curl -L -o "$(downloadDir)"/"$ISO" "$URL"/"$ISO"
   successFail
 }
 
 # Download SHA File
 downloadSHA() {
   echo -e "\nDownloading SHA file to $(downloadDir)\n"
-  curl -L -o "$(downloadDir)"/"${SHA_File}" "${URL}"/"${SHA_File}"
+  curl -L -o "$(downloadDir)"/"$SHA_File" "$URL"/"$SHA_File"
   successFail
 }
 
 # Download Sig file
 downloadSig() {
   echo -e "\nDownloading Sig file to $(downloadDir)\n"
-  curl -L -o "$(downloadDir)"/"${Sig_File}" "${URL}"/"${Sig_File}"
+  curl -L -o "$(downloadDir)"/"$Sig_File" "$URL"/"$Sig_File"
   successFail
 }
 
 # Check authenticity of downloaded iso
 chkAuth() {
   echo -e "\nAdding GPG keys ...\n"
-  gpg --keyid-format long --keyserver hkps://keyserver.ubuntu.com --recv-key 0x"${Manjaro_GKey}"
+  gpg --keyid-format long --keyserver hkps://keyserver.ubuntu.com --recv-key 0x"$Manjaro_GKey"
   successFail
 
   echo -e "\nChecking authenticity of the downloaded ISO ...\n"
   cd "$(downloadDir)" || exit
-  gpg --keyid-format long --verify "${Sig_File}"
+  gpg --keyid-format long --verify "$Sig_File"
 }
 
 # Check integrity of downloaded ISO
 chkInt() {
   echo -e "Checking integrity of the downloaded ISO ...\n"
   cd "$(downloadDir)" || exit
-  if [ ! "$(sha1sum -c "${SHA_File}" 2>&1 | grep OK)" = "" ]
+  if [ ! "$(sha1sum -c "$SHA_File" 2>&1 | grep OK)" = "" ]
   then
     echo -e "Success\n"
   else
@@ -105,12 +109,27 @@ SubVer=$(while read -r
            sed 's/.iso.*//'; #Removes everything after ".iso"
          done < /tmp/scrape)
 
+ISO=""
+URL=""
+SHA_File=""
+Sig_File=""
+Manjaro_GKey=$(GKey Manjaro)
+RemSpace=""
+
 selDE
-downloadISO
-downloadSHA
-downloadSig
-chkAuth
-chkInt
+
+chkRemSpace
+
+if [ "$RemSpace" -ge 0 ]
+then
+  downloadISO
+  downloadSHA
+  downloadSig
+  chkAuth
+  chkInt
+else
+  calcReqSpace "$RemSpace"
+fi
 
 cleanup
 

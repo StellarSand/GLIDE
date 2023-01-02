@@ -105,76 +105,76 @@ fi
 # Process options
 while [ $# -gt 0 ]
 do
-case "$1" in
+  case "$1" in
 
-	-h | --help)
-		usage
-		exit 0
-	;;
+    -h | --help)
+      usage
+      exit 0
+    ;;
 
-	-l | --list)
-		listDistros
-		exit 0
-	;;
+    -l | --list)
+      listDistros
+      exit 0
+    ;;
 
-	-D | --default-dir)
-	  if [ $# -gt 1 ]
-    then
-      shift
-      DefDnldDir=$1
-      echo "$DefDnldDir" > "$ConfigFile"
-      successFail
-      echo -e "All files will be downloaded in $DefDnldDir"
-    else
-      echo -e "\nInvalid option: $1\n"
-      echo -e "The -D or --default-dir option must be used alone.\n"
-      echo -e "Try 'glide -h' for more information.\n"
-      exit 1
-    fi
-	;;
-
-  -d | --directory)
-    if [ $# -gt 1 ]
-    then
-      shift
-      CurrDnldDir=$1
-      if [ ! -d "$CurrDnldDir" ]
+    -D | --default-dir)
+      if [ $# -gt 1 ]
       then
-        echo -e "\n$CurrDnldDir does not exist.\n"
-        echo -e "Exiting script ...\n"
-        exit 1
+        shift
+        DefDnldDir=$1
+        echo "$DefDnldDir" > "$ConfigFile"
+        successFail
+        echo -e "All files will be downloaded in $DefDnldDir"
       else
-        echo "$CurrDnldDir" > /tmp/curr_dnld_dir
+        echo -e "\nInvalid option: $1\n"
+        echo -e "The -D or --default-dir option must be used alone.\n"
+        echo -e "Try 'glide -h' for more information.\n"
+        exit 1
       fi
-    else
+    ;;
+
+    -d | --directory)
+      if [ $# -gt 1 ]
+      then
+        shift
+        CurrDnldDir=$1
+        if [ ! -d "$CurrDnldDir" ]
+        then
+          echo -e "\n$CurrDnldDir does not exist.\n"
+          echo -e "Exiting script ...\n"
+          exit 1
+        else
+          echo "$CurrDnldDir" > /tmp/curr_dnld_dir
+        fi
+      else
+        echo -e "\nInvalid option: $1\n"
+        echo -e "The -d or --directory option must be followed by a directory path.\n"
+        echo -e "Try 'glide -h' for more information.\n"
+        exit 1
+      fi
+    ;;
+
+    -n | --name)
+      if [ $# -gt 1 ]
+      then
+        shift
+        Distro=$1
+      else
+        echo -e "\nInvalid option: $1\n"
+        echo -e "The -n or --name option must be followed by a distro name.\n"
+        echo -e "Try 'glide -h' for more information.\n"
+        exit 1
+      fi
+    ;;
+
+    *)
       echo -e "\nInvalid option: $1\n"
-      echo -e "The -d or --directory option must be followed by a directory path.\n"
       echo -e "Try 'glide -h' for more information.\n"
       exit 1
-    fi
-  ;;
+    ;;
 
-	-n | --name)
-	  if [ $# -gt 1 ]
-	  then
-      shift
-      Distro=$1
-    else
-      echo -e "\nInvalid option: $1\n"
-      echo -e "The -n or --name option must be followed by a distro name.\n"
-      echo -e "Try 'glide -h' for more information.\n"
-      exit 1
-    fi
-	;;
-
-	*)
-		echo -e "\nInvalid option: $1\n"
-		echo -e "Try 'glide -h' for more information.\n"
-		exit 1
-	;;
-
-esac
-shift
+  esac
+  shift
 done
 
 # Perform actual downloads

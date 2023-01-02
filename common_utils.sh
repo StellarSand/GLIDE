@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-scrapeFile="/tmp/scrape"
-currDnldDir="/tmp/curr_dnld_dir"
+ScrapeFile="/tmp/scrape"
+CurrDnldDir="/tmp/curr_dnld_dir"
 
 successFail() {
 if [ $? -eq 0 ]
@@ -23,19 +23,54 @@ execPerm() {
 
 # Check for latest version
 chkVer() {
-  echo -e "Checking for latest version ..."
+  echo -e "\nChecking for latest version ..."
   echo -e "This may take a while ...\n"
-  curl -s "$1" > $scrapeFile
+  curl -s "$1" > $ScrapeFile
 }
 
 # Download directory
 downloadDir() {
-  if [ -f $currDnldDir ]
+  if [ -f $CurrDnldDir ]
   then
-    cat "$currDnldDir"
+    cat "$CurrDnldDir"
   else
   cat "$HOME/.config/GLIDE/dnld_dir"
   fi
+}
+
+# Check disk free space in bytes
+diskFreeSpace() {
+  df "$(downloadDir)" | awk 'NR==2{print $4 * 1024}'
+}
+
+# Calculate required space if remaining space is less than 0
+calcReqSpace() {
+  RemSpace=$1
+  ReqSpace=${RemSpace//-/} # {variable//search/replace}; absolute value of remaining space
+  if [ "$ReqSpace" -le 1024 ]
+  then
+    Unit="B"
+  elif [ "$ReqSpace" -gt 1024 ] && [ "$ReqSpace" -le $((1024*1024)) ]
+  then
+    ReqSpace=$(("$ReqSpace"/1024))
+    Unit="KB"
+  elif [ "$ReqSpace" -gt $((1024*1024)) ] && [ "$ReqSpace" -le $((1024*1024*1024)) ]
+  then
+    ReqSpace=$(("$ReqSpace"/1024/1024))
+    Unit="MB"
+  else
+    ReqSpace=$(("$ReqSpace"/1024/1024/1024))
+    Unit="GB"
+  fi
+  echo "Not enough disk space to download."
+  echo "Please clear up $ReqSpace $Unit and try again."
+  echo -e "Exiting script ...\n"
+  exit 1
+}
+
+# Check download files size
+dnldFileSize() {
+  curl -s -L --head "$1" | grep -i "Content-Length" | awk '{print $2}'
 }
 
 # GPG key
@@ -46,7 +81,10 @@ GKey() {
 # Remove temporary files
 cleanup() {
   echo -e "Removing temporary files ...\n"
-  rm $scrapeFile
-  rm $currDnldDir
+  rm $ScrapeFile
+  if [ -f $CurrDnldDir ]
+  then
+    rm $CurrDnldDir
+  fi
   successFail
 }

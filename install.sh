@@ -12,7 +12,10 @@ fi
 
 echo "Installing ..."
 sudo cp glide.sh /usr/bin/glide
-sudo mkdir /usr/local/lib/GLIDE
+if [ ! -d /usr/local/lib/GLIDE ]
+then
+  sudo mkdir /usr/local/lib/GLIDE
+fi
 sudo cp common_utils.sh /usr/local/lib/GLIDE/
 sudo cp -r distros /usr/local/lib/GLIDE/
 sudo cp -r conf /usr/local/lib/GLIDE/
