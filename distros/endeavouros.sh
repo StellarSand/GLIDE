@@ -67,7 +67,7 @@ EndeavourVer=$(while read -r
                  sed 's/.*Alpix//' | #Removes everything before & including "Alpix"
                  sed 's/Download.*//' | #Removes everything after & including "Download"
                  sed 's/.*EndeavourOS_//' | #Removes everything before & including "EndeavourOS_"
-                 sed 's/.iso.*//'; #Removes everything after & including ".iso"
+                 sed 's/.iso.*//' #Removes everything after & including ".iso"
                done < /tmp/scrape)
 
 ISO="EndeavourOS_${EndeavourVer}.iso"

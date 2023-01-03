@@ -40,7 +40,7 @@ downloadDir() {
 
 # Check disk free space in bytes
 diskFreeSpace() {
-  df "$(downloadDir)" | awk 'NR==2{print $4 * 1024}'
+  df -B 1 "$(downloadDir)" | awk 'NR==2{print $4}'
 }
 
 # Calculate required space if remaining space is less than 0
@@ -50,16 +50,16 @@ calcReqSpace() {
   if [ "$ReqSpace" -le 1024 ]
   then
     Unit="B"
-  elif [ "$ReqSpace" -gt 1024 ] && [ "$ReqSpace" -le $((1024*1024)) ]
+  elif [ "$ReqSpace" -gt 1024 ] && [ "$ReqSpace" -le $((1024**2)) ]
   then
     ReqSpace=$(("$ReqSpace"/1024))
     Unit="KB"
-  elif [ "$ReqSpace" -gt $((1024*1024)) ] && [ "$ReqSpace" -le $((1024*1024*1024)) ]
+  elif [ "$ReqSpace" -gt $((1024**2)) ] && [ "$ReqSpace" -le $((1024**3)) ]
   then
-    ReqSpace=$(("$ReqSpace"/1024/1024))
+    ReqSpace=$(("$ReqSpace"/1024**2))
     Unit="MB"
   else
-    ReqSpace=$(("$ReqSpace"/1024/1024/1024))
+    ReqSpace=$(("$ReqSpace"/1024**3))
     Unit="GB"
   fi
   echo "Not enough disk space to download."
@@ -70,7 +70,7 @@ calcReqSpace() {
 
 # Check download files size
 dnldFileSize() {
-  curl -s -L --head "$1" | grep -i "Content-Length" | awk '{print $2}'
+  curl -sL --head "$1" | grep -i "Content-Length" | awk '{print $2}'
 }
 
 # GPG key

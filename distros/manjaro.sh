@@ -106,7 +106,7 @@ SubVer=$(while read -r
            sed -n '/<a id="btn-ft/,$p' | #Removes everything before "<a id="btn-ft" line
            sed -n '/<i class/q;p' | #Removes everything after & including "<i class" line
            sed "s/.*${ManjaroVer}-//" | #Removes everything before sub version
-           sed 's/.iso.*//'; #Removes everything after ".iso"
+           sed 's/.iso.*//' #Removes everything after ".iso"
          done < /tmp/scrape)
 
 ISO=""

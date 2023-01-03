@@ -59,7 +59,7 @@ FedoraVer=$(while read -r
              sed -n '/Fedora-Everything/,$p' | #Removes everything before "Fedora-Everything" line
              sed -n '/ <\//q;p' | #Removes everything after "</"and including this line
              sed 's/.*netinst-x86_64-//' | #Removes everything before and including "netinst-x86_64-"
-             sed 's/-.*//'; #Only keeps main version like "37"
+             sed 's/-.*//' #Only keeps main version like "37"
            done < /tmp/scrape)
 
 SubVer=$(while read -r
@@ -67,7 +67,7 @@ SubVer=$(while read -r
            sed -n '/Fedora-Everything/,$p' | #Removes everything before "Fedora-Everything" line
            sed -n '/ <\//q;p' | #Removes everything after "</"and including this line
            sed "s/.*x86_64-${FedoraVer}-//" | #Removes everything before "x86_64_37-"
-           sed 's/.iso".*//'; #Only keeps sub version like "1.7"
+           sed 's/.iso".*//' #Only keeps sub version like "1.7"
          done < /tmp/scrape)
 
 ISO="Fedora-Workstation-Live-x86_64-${FedoraVer}-${SubVer}.iso"

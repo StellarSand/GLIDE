@@ -65,7 +65,7 @@ KaliVer=$(while read -r
             sed -n '/Changelog/,$p' | #Removes everything before this line
             sed -n '/32-bit/q;p' | #Removes everything after "32-bit" including this line
             sed 's/.*header-link>Kali Linux //' | #Removes everything before ver no.
-            sed 's/ Changelog.*//'; #Removes everything after version number
+            sed 's/ Changelog.*//' #Removes everything after version number
           done < /tmp/scrape)
 
 ISO="kali-linux-$KaliVer-installer-amd64.iso"

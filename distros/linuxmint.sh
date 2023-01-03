@@ -65,7 +65,7 @@ LMintVer=$(while read -r
             sed -n '/Download/,$p' | #Removes everything before this line
             sed -n '/<meta/q;p' | #Removes everything after "<meta" including this line
             sed 's/.*Mint //' | #Removes everything before ver no.
-            sed 's/  -.*//'; #Removes everything after version number
+            sed 's/  -.*//' #Removes everything after version number
           done < /tmp/scrape)
 
 ISO="linuxmint-${LMintVer}-cinnamon-64bit.iso"

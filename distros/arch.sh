@@ -66,7 +66,7 @@ ArchVer=$(while read -r
             sed -n '/https:\/\/geo.mirror.pkgbuild.com\/iso/,$p' | #Removes everything before this line
             sed -n '/title/q;p' | #Removes everything after "title" including this line
             sed 's/.*iso\///' | #Removes everything before ver no.
-            sed 's/\/"//'; #Removes /" after version number
+            sed 's/\/"//' #Removes /" after version number
           done < /tmp/scrape)
 
 ISO="archlinux-$ArchVer-x86_64.iso"

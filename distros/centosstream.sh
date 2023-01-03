@@ -8,7 +8,7 @@ chkRemSpace() {
   echo -e "This may take a while ...\n"
   ISOSize=$(dnldFileSize "$URL"/"$ISO")
   SHASize=$(dnldFileSize "$URL"/"$SHA_File")
-  TotalDnldSize=$(awk -v ISOSize="$ISOSize" -v SHASize="$SHASize" 'BEGIN {print (ISOSize + SHASize) * 2048}')
+  TotalDnldSize=$(awk -v ISOSize="$ISOSize" -v SHASize="$SHASize" 'BEGIN {print (ISOSize + SHASize) * 1024**2}')
   RemSpace=$(($(diskFreeSpace)-"$TotalDnldSize"))
 }
 
@@ -59,7 +59,7 @@ CentStreamVer=$(while read -r
                   sed -n '/https:\/\/mirrors.centos.org/,$p' | #Removes everything before this line
                   sed -n '/http:\/\/mirror.stream/q;p' | #Removes everything after & including this line
                   sed 's/.*=\///' | #Removes everything before ver no.
-                  sed 's/-.*//'; #Removes everything after version number
+                  sed 's/-.*//' #Removes everything after version number
                 done < /tmp/scrape)
 
 ISO="CentOS-Stream-${CentStreamVer}-latest-x86_64-dvd1.iso"

@@ -66,7 +66,7 @@ DebianVer=$(while read -r
               sed -n '/<a href="debian-/,$p' | #Removes everything before this line
               sed -n '/indexbreakrow/q;p' | #Removes everything after "indexbreakrow" including this line
               sed 's/.*debian-//' | #Removes everything before version number
-              sed 's/-.*//'; #Removes everything after version number
+              sed 's/-.*//' #Removes everything after version number
             done < /tmp/scrape)
 
 ISO="debian-${DebianVer}-amd64-DVD-1.iso"

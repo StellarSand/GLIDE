@@ -28,6 +28,7 @@ All downloaded files are always the latest ones.
 - [Manjaro](https://manjaro.org/)
 - [Ubuntu](https://ubuntu.com/)
 - [Ubuntu LTS](https://ubuntu.com/)
+- [Zorin OS](https://zorin.com/os/)
 
 
 
