@@ -11,7 +11,7 @@ DistroScriptsDir="/usr/local/lib/GLIDE/distros"
 hasCommand() {
 if ! (command -v "$1" > /dev/null)
 then
-  echo -e "\n$1 package does not exist. Please install it first and try again.\n"
+  echo -e "\n$1 package does not exist. Please install it first and try again."
   echo -e "Exiting script ...\n"
   exit 1
 fi
@@ -23,22 +23,21 @@ usage() {
 cat << EOF
 
 Usage:
-glide -n <distro name>
-glide -n <distro name> -d <directory>
+glide <distro name>
+glide <distro name> -d <directory>
 
 Description:
-Script to download latest GNU/Linux ISO.
+Download the latest ISO images for various GNU/Linux distributions directly from the terminal.
 
 Available options:
  -h,  --help            Show this help message
  -l,  --list            Show available distro list
  -D,  --default-dir     Change default download directory
  -d,  --directory       Change directory for current download only
- -n,  --name            Distro name (from available list)
 
 Examples:
-glide -n ubuntu
-glide -n ubuntu -d /home/user/Desktop
+glide ubuntu
+glide ubuntu -d /home/user/Desktop
 
 EOF
 
@@ -83,8 +82,8 @@ fi
 # Check download directory
 if [ ! -d "$DefDnldDir" ]
 then
-  echo -e "Set a default directory to download files.\n"
-  echo -e "Try 'glide -h' for more information.\n"
+  echo -e "\nSet a default directory to download files."
+  echo -e "Try 'glide -h' for more information."
   echo -e "Exiting script ...\n"
   exit 1
 fi
@@ -126,8 +125,8 @@ do
         successFail
         echo -e "All files will be downloaded in $DefDnldDir"
       else
-        echo -e "\nInvalid option: $1\n"
-        echo -e "The -D or --default-dir option must be used alone.\n"
+        echo -e "\nInvalid option: $1"
+        echo -e "The -D or --default-dir option must be used alone."
         echo -e "Try 'glide -h' for more information.\n"
         exit 1
       fi
@@ -140,38 +139,30 @@ do
         CurrDnldDir=$1
         if [ ! -d "$CurrDnldDir" ]
         then
-          echo -e "\n$CurrDnldDir does not exist.\n"
+          echo -e "\n$CurrDnldDir does not exist."
           echo -e "Exiting script ...\n"
           exit 1
         else
           echo "$CurrDnldDir" > /tmp/curr_dnld_dir
         fi
       else
-        echo -e "\nInvalid option: $1\n"
-        echo -e "The -d or --directory option must be followed by a directory path.\n"
+        echo -e "\nInvalid option: $1"
+        echo -e "The -d or --directory option must be followed by a directory path."
         echo -e "Try 'glide -h' for more information.\n"
         exit 1
       fi
     ;;
 
-    -n | --name)
-      if [ $# -gt 1 ]
-      then
-        shift
-        Distro=$1
-      else
-        echo -e "\nInvalid option: $1\n"
-        echo -e "The -n or --name option must be followed by a distro name.\n"
-        echo -e "Try 'glide -h' for more information.\n"
-        exit 1
-      fi
-    ;;
-
-    *)
-      echo -e "\nInvalid option: $1\n"
+    -*)
+      echo -e "\nInvalid option: $1"
       echo -e "Try 'glide -h' for more information.\n"
       exit 1
     ;;
+
+    *)
+      Distro=$1
+    ;;
+
 
   esac
   shift
@@ -186,7 +177,7 @@ then
     execPerm $DistroScriptsDir/"$Distro".sh
     $DistroScriptsDir/"$Distro".sh
   else
-    echo -e "\nInvalid distro name\n"
+    echo -e "\nInvalid distro name."
     echo -e "Try 'glide -l' to see the list of available distros.\n"
     exit 1
   fi

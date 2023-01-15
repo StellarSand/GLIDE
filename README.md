@@ -59,12 +59,12 @@ chmod +x install.sh
 Using GLIDE is easy, once installed.
 
 ```
-glide -n <distro name>
+glide <distro name>
 ```
 
 Downloading to a specific directory can be done using the `-d` or `--directory` option
 ```
-glide -n <distro name> -d <directory>
+glide <distro name> -d <directory>
 ```
 
 **Examples:**
@@ -75,12 +75,12 @@ glide -l
 
 - To download Linux Mint ISO:
 ```
-glide -n linuxmint
+glide linuxmint
 ```
 
 - To download Linux Mint ISO to specific directory:
 ```
-glide -n linuxmint -d /home/user/Desktop
+glide linuxmint -d /home/user/Desktop
 ```
 
 
@@ -88,17 +88,22 @@ glide -n linuxmint -d /home/user/Desktop
 ## Uninstall
 If GLIDE has been installed, you can remove it by:
 
-**1. Move into the project directory:**
+**1. Clone this repo (if not done already):**
+```
+git clone https://github.com/the-weird-aquarian/GLIDE.git
+```
+
+**2. Move into the project directory:**
 ```
 cd GLIDE
 ```
 
-**2. Give executable permissions to the uninstall script:**
+**3. Give executable permissions to the uninstall script:**
 ```
 chmod +x uninstall.sh
 ```
 
-**3. Run the uninstall script:**
+**4. Run the uninstall script:**
 ```
 ./uninstall.sh
 ```
