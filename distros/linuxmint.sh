@@ -6,50 +6,50 @@ source /usr/local/lib/GLIDE/common_utils.sh
 chkRemSpace() {
   echo "Checking available disk space ..."
   echo -e "This may take a while ...\n"
-  ISOSize=$(dnldFileSize "$URL"/"$ISO")
-  SHASize=$(dnldFileSize "$URL"/"$SHA_File")
-  GPGSize=$(dnldFileSize "$URL"/"$GPG_File")
-  TotalDnldSize=$(awk -v ISOSize="$ISOSize" -v SHASize="$SHASize" -v GPGSize="$GPGSize" 'BEGIN {print ISOSize + SHASize + GPGSize}')
-  RemSpace=$(($(diskFreeSpace)-"$TotalDnldSize"))
+  iso_size=$(dnldFileSize "$url"/"$iso")
+  sha_size=$(dnldFileSize "$url"/"$sha_file")
+  gpg_size=$(dnldFileSize "$url"/"$gpg_file")
+  total_dnld_size=$(awk -v iso_size="$iso_size" -v sha_size="$sha_size" -v gpg_size="$gpg_size" 'BEGIN {print iso_size + sha_size + gpg_size}')
+  rem_space=$(($(diskFreeSpace)-"$total_dnld_size"))
 }
 
-# Download ISO
+# Download iso
 downloadISO() {
   echo -e "\nDownloading ISO to $(downloadDir)\n"
-  curl -L -o "$(downloadDir)"/"$ISO" "$URL"/"$ISO"
+  curl -L -o "$(downloadDir)"/"$iso" "$url"/"$iso"
   successFail
 }
 
 # Download SHA File
 downloadSHA() {
   echo -e "\nDownloading SHA file to $(downloadDir)\n"
-  curl -L -o "$(downloadDir)"/"$SHA_File" "$URL"/"$SHA_File"
+  curl -L -o "$(downloadDir)"/"$sha_file" "$url"/"$sha_file"
   successFail
 }
 
 # Download GPG file
 downloadGPG() {
   echo -e "\nDownloading GPG file to $(downloadDir)\n"
-  curl -L -o "$(downloadDir)"/"$GPG_File" "$URL"/"$GPG_File"
+  curl -L -o "$(downloadDir)"/"$gpg_file" "$url"/"$gpg_file"
   successFail
 }
 
 # Check authenticity of downloaded iso
 chkAuth() {
   echo -e "\nAdding GPG keys ...\n"
-  gpg --keyid-format long --keyserver hkps://keyserver.ubuntu.com --recv-key 0x"$LMint_GKey"
+  gpg --keyid-format long --keyserver hkps://keyserver.ubuntu.com --recv-key 0x"$lmint_gkey"
   successFail
 
   echo -e "\nChecking authenticity of the downloaded ISO ...\n"
   cd "$(downloadDir)" || exit
-  gpg --keyid-format long --verify "$GPG_File" "$SHA_File"
+  gpg --keyid-format long --verify "$gpg_file" "$sha_file"
 }
 
-# Check integrity of downloaded ISO
+# Check integrity of downloaded iso
 chkInt() {
   echo -e "\nChecking integrity of the downloaded ISO ...\n"
   cd "$(downloadDir)" || exit
-  if [ ! "$(sha256sum -c "$SHA_File" 2>&1 | grep OK)" = "" ]
+  if [ ! "$(sha256sum -c "$sha_file" 2>&1 | grep OK)" = "" ]
   then
     echo -e "Success\n"
   else
@@ -60,24 +60,28 @@ chkInt() {
 
 chkVer "https://linuxmint.com/download.php"
 
-LMintVer=$(while read -r
+lmint_ver=$(while read -r
           do
-            sed -n '/Download/,$p' | #Removes everything before this line
-            sed -n '/<meta/q;p' | #Removes everything after "<meta" including this line
-            sed 's/.*Mint //' | #Removes everything before ver no.
-            sed 's/  -.*//' #Removes everything after version number
+            awk 'match($0, /Linux Mint ([.0-9]*) /, a){print a[1]}' | 
+            # $0 => current line
+            # /Linux Mint => search for Linux Mint
+            # [.0-9] => matches anything that is a dot or digit.
+            # * => zero or more times
+            # a => store the matched substrings in an array 'a'
+            # a[1] => The array index corresponds to matched string in groups enclosed in (). Here it's ([.0-9]*)
+            head -1 # Retuns first line of awk output
           done < /tmp/scrape)
 
-ISO="linuxmint-${LMintVer}-cinnamon-64bit.iso"
-URL="https://mirrors.layeronline.com/linuxmint/stable/${LMintVer}"
-SHA_File="sha256sum.txt"
-GPG_File="${SHA_File}.gpg"
-LMint_GKey=$(GKey LinuxMint)
-RemSpace=""
+iso="linuxmint-${lmint_ver}-cinnamon-64bit.iso"
+url="https://mirrors.layeronline.com/linuxmint/stable/${lmint_ver}"
+sha_file="sha256sum.txt"
+gpg_file="${sha_file}.gpg"
+lmint_gkey=$(GKey LinuxMint)
+rem_space=""
 
 chkRemSpace
 
-if [ "$RemSpace" -ge 0 ]
+if [ "$rem_space" -ge 0 ]
 then
   downloadISO
   downloadSHA
@@ -85,7 +89,7 @@ then
   chkAuth
   chkInt
 else
-  calcReqSpace "$RemSpace"
+  calcReqSpace "$rem_space"
 fi
 
 cleanup

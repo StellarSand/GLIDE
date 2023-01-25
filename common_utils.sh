@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 
-ScrapeFile="/tmp/scrape"
-CurrDnldDir="/tmp/curr_dnld_dir"
+scrape_file="/tmp/scrape"
+curr_dnld_dir="/tmp/curr_dnld_dir"
 
 successFail() {
-if [ $? -eq 0 ]
-then
-	echo -e "Done.\n"
-else
-	echo -e "Some error occurred performing the task.\n"
-	exit 1
-fi
+  if [ $? -eq 0 ]
+  then
+    echo -e "Done.\n"
+  else
+    echo -e "Some error occurred performing the task.\n"
+    exit 1
+  fi
 }
 
 # Executable permission
@@ -25,16 +25,16 @@ execPerm() {
 chkVer() {
   echo -e "\nChecking for latest version ..."
   echo -e "This may take a while ...\n"
-  curl -s "$1" > $ScrapeFile
+  curl -s "$1" > $scrape_file
 }
 
 # Download directory
 downloadDir() {
-  if [ -f $CurrDnldDir ]
+  if [ -f $curr_dnld_dir ]
   then
-    cat "$CurrDnldDir"
+    cat "$curr_dnld_dir"
   else
-  cat "$HOME/.config/GLIDE/dnld_dir"
+    cat "$HOME/.config/GLIDE/dnld_dir"
   fi
 }
 
@@ -45,25 +45,25 @@ diskFreeSpace() {
 
 # Calculate required space if remaining space is less than 0
 calcReqSpace() {
-  RemSpace=$1
-  ReqSpace=${RemSpace//-/} # {variable//search/replace}; absolute value of remaining space
-  if [ "$ReqSpace" -le 1024 ]
+  rem_space=$1
+  req_space=${rem_space//-/} # {variable//search/replace}; absolute value of remaining space
+  if [ "$req_space" -le 1024 ]
   then
     Unit="B"
-  elif [ "$ReqSpace" -gt 1024 ] && [ "$ReqSpace" -le $((1024**2)) ]
+  elif [ "$req_space" -gt 1024 ] && [ "$req_space" -le $((1024**2)) ]
   then
-    ReqSpace=$(("$ReqSpace"/1024))
+    req_space=$(("$req_space"/1024))
     Unit="KB"
-  elif [ "$ReqSpace" -gt $((1024**2)) ] && [ "$ReqSpace" -le $((1024**3)) ]
+  elif [ "$req_space" -gt $((1024**2)) ] && [ "$req_space" -le $((1024**3)) ]
   then
-    ReqSpace=$(("$ReqSpace"/1024**2))
+    req_space=$(("$req_space"/1024**2))
     Unit="MB"
   else
-    ReqSpace=$(("$ReqSpace"/1024**3))
+    req_space=$(("$req_space"/1024**3))
     Unit="GB"
   fi
   echo "Not enough disk space to download."
-  echo "Please clear up $ReqSpace $Unit and try again."
+  echo "Please clear up $req_space $Unit and try again."
   echo -e "Exiting script ...\n"
   exit 1
 }
@@ -81,10 +81,10 @@ GKey() {
 # Remove temporary files
 cleanup() {
   echo -e "Removing temporary files ...\n"
-  rm $ScrapeFile
-  if [ -f $CurrDnldDir ]
+  rm $scrape_file
+  if [ -f $curr_dnld_dir ]
   then
-    rm $CurrDnldDir
+    rm $curr_dnld_dir
   fi
   successFail
 }

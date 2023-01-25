@@ -6,22 +6,22 @@ source /usr/local/lib/GLIDE/common_utils.sh
 chkRemSpace() {
   echo "Checking available disk space ..."
   echo -e "This may take a while ...\n"
-  ISOSize=$(dnldFileSize "https://mirrors.edge.kernel.org/zorinos-isos/$ZorinVer/$ISO")
-  RemSpace=$(awk -v diskFreeSpace="$(diskFreeSpace)" -v ISOSize="$ISOSize" 'BEGIN {print (diskFreeSpace - ISOSize)}')
+  iso_size=$(dnldFileSize "https://mirrors.edge.kernel.org/zorinos-isos/$zorin_ver/$iso")
+  rem_space=$(awk -v diskFreeSpace="$(diskFreeSpace)" -v iso_size="$iso_size" 'BEGIN {print (diskFreeSpace - iso_size)}')
 }
 
-# Download ISO
+# Download iso
 downloadISO() {
   echo -e "Downloading ISO to $(downloadDir)\n"
-  curl -L -o "$(downloadDir)"/"$ISO" "$URL"/"$ISO"
+  curl -L -o "$(downloadDir)"/"$iso" "$url"/"$iso"
   successFail
 }
 
-# Check integrity of downloaded ISO
+# Check integrity of downloaded iso
 chkInt() {
   echo -e "\nChecking integrity of the downloaded ISO ...\n"
   cd "$(downloadDir)" || exit
-  if [ "$(sha256sum "$ISO" | sed "s/  $ISO//")" == "$SHA" ]
+  if [ "$(sha256sum "$iso" | sed "s/  $iso//")" == "$sha" ]
     then
       echo -e "Success\n"
     else
@@ -30,66 +30,53 @@ chkInt() {
     fi
 }
 
-echo -e "\nSelect an Edition to download"
+echo -e "\nSelect an edition to download"
 echo -e "1. Core\n2. Lite\n"
 read -p "Enter 1 or 2: " editn
 
 if [ "$editn" -eq 2 ]
 then
-  Edition="Lite"
+  edition="lite"
 else
-  Edition="Core"
+  edition="core"
 fi
 
 chkVer "https://zorin.com/os/download/"
 
-ZorinVer=$(while read -r
+zorin_ver=$(while read -r
            do
-             sed -n '/Core<\/h2>/,$p' | # Removes everything before this line
-             sed -n '/<p/q;p' | # Removes everything after "div" including this line
-             sed 's/.*.*Zorin OS //' | # Removes everything before ver no.
-             sed 's/..<.*//' # Only keeps main ver no. like "16"
+             awk 'match($0, /os\/download\/([0-9]*)/, a){print a[1]}' | 
+             head -1
             done < /tmp/scrape)
 
-SubVer=$(while read -r
-         do
-           sed -n '/Core<\/h2>/,$p' | # Removes everything before this line
-           sed -n '/<p/q;p' | # Removes everything after "div" including this line
-           sed "s/.*.*Zorin OS ${ZorinVer}.//" | # Removes everything before sub ver no.
-           sed 's/<\/span>.*//' # Only keeps sub ver like "2"
-         done < /tmp/scrape)
-
-curl -s "https://zorin.com/os/download/${ZorinVer}/${Edition}/" > /tmp/scrape
-ISO=$(while read -r
+curl -s "https://zorin.com/os/download/${zorin_ver}/${edition}/" > /tmp/scrape
+iso=$(while read -r
       do
-        sed -n '/mirrors.edge/,$p' |
-        sed -n '/<\/ul>/q;p' |
-        sed "s/.*zorinos-isos\/${ZorinVer}\///" |
-        sed 's/".*//'
-      done < /tmp/scrape) # This is done because iso don't have
-                          # consistent naming like 16.0, 16.2
-                          # instead, names keep changing like 16, 16.2, 16.2-r1 etc etc
+        awk 'match($0, /zorinos-isos\/'"$zorin_ver"'\/([A-z0-9.-]*)/, a){print a[1]}' | 
+        head -1
+      done < /tmp/scrape)
+      # This is done because iso doesn't have
+      # consistent naming like 16.0, 16.2
+      # instead, names keep changing like 16, 16.2, 16.2-r1 etc etc
 
 curl -s "https://help.zorin.com/docs/getting-started/check-the-integrity-of-your-copy-of-zorin-os/" > /tmp/scrape
-SHA=$(while read -r
+sha=$(while read -r
       do
-        sed -n "/Zorin OS ${ZorinVer}.${SubVer} ${Edition} 64-bit/,\$p" |
-        sed -n '/twitter.com/q;p' |
-        sed "s/.*${ZorinVer}.${SubVer} ${Edition} 64-bit:<\/strong> <code>//" |
-        sed 's/<\/code>.*//'
+        awk 'match($0, /'"${edition^}"' 64-bit:<\/strong> <code>([a-z0-9]*)</, a){print a[1]}'
+        # ${edition^} => converts core to Core
       done < /tmp/scrape)
 
-URL="https://free.download.zorinos.com/${ZorinVer}"
-RemSpace=""
+url="https://free.download.zorinos.com/$zorin_ver"
+rem_space=""
 
 chkRemSpace
 
-if [ "$RemSpace" -ge 0 ]
+if [ "$rem_space" -ge 0 ]
 then
   downloadISO
   chkInt
 else
-  calcReqSpace "$RemSpace"
+  calcReqSpace "$rem_space"
 fi
 
 cleanup

@@ -6,51 +6,51 @@ source /usr/local/lib/GLIDE/common_utils.sh
 chkRemSpace() {
   echo "Checking available disk space ..."
   echo -e "This may take a while ...\n"
-  ISOSize=$(dnldFileSize "$URL"/"$ISO")
-  SHASize=$(dnldFileSize "$URL"/"$SHA_File")
-  SigSize=$(dnldFileSize "$URL"/"$Sig_File")
-  TotalDnldSize=$(awk -v ISOSize="$ISOSize" -v SHASize="$SHASize" -v SigSize="$SigSize" 'BEGIN {print ISOSize + SHASize + SigSize}')
-  RemSpace=$(($(diskFreeSpace)-"$TotalDnldSize"))
+  iso_size=$(dnldFileSize "$url"/"$iso")
+  sha_size=$(dnldFileSize "$url"/"$sha_file")
+  sig_size=$(dnldFileSize "$url"/"$sig_file")
+  total_dnld_size=$(awk -v iso_size="$iso_size" -v sha_size="$sha_size" -v sig_size="$sig_size" 'BEGIN {print iso_size + sha_size + sig_size}')
+  rem_space=$(($(diskFreeSpace)-"$total_dnld_size"))
 }
 
-# Download ISO
+# Download iso
 downloadISO() {
   echo -e "\nDownloading ISO to $(downloadDir)\n"
-  curl -L -o "$(downloadDir)"/"$ISO" "$URL"/"$ISO"
+  curl -L -o "$(downloadDir)"/"$iso" "$url"/"$iso"
   successFail
 }
 
 # Download SHA File
 downloadSHA() {
   echo -e "\nDownloading SHA file to $(downloadDir)\n"
-  curl -L -o "$(downloadDir)"/"$SHA_File" "$URL"/"$SHA_File"
-  successFail
+  curl -L -o "$(downloadDir)"/"$sha_File" "$url"/"$sha_File"
+f successFail
 }
 
 # Download Sig file
 downloadSig() {
   echo -e "\nDownloading Sig file to $(downloadDir)\n"
-  curl -L -o "$(downloadDir)"/"$Sig_File" "$URL"/"$Sig_File"
+  curl -L -o "$(downloadDir)"/"$sig_file" "$url"/"$sig_file"
   successFail
 }
 
 # Check authenticity of downloaded iso
 chkAuth() {
   echo -e "\nAdding GPG keys ...\n"
-  gpg --keyid-format long --keyserver hkps://keyserver.ubuntu.com --recv-key 0x"$Endeavour_GKey"
+  gpg --keyid-format long --keyserver hkps://keyserver.ubuntu.com --recv-key 0x"$endeavour_gkey"
   successFail
 
   echo -e "\nChecking authenticity of the downloaded ISO ...\n"
   cd "$(downloadDir)" || exit
-  gpg --keyid-format long --verify "$Sig_File"
+  gpg --keyid-format long --verify "$sig_file"
 }
 
-# Check integrity of downloaded ISO
+# Check integrity of downloaded iso
 chkInt() {
   echo -e "\nChecking integrity of the downloaded ISO ...\n"
   cd "$(downloadDir)" || exit
-  if [ ! "$(sha512sum -c "$SHA_File" 2>&1 | grep OK)" = "" ]
-  then
+  if [ ! "$(sha512sum -c "$sha_File" 2>&1 | grep OK)" = "" ]
+f then
     echo -e "Success\n"
   else
     echo -e "Failed\n"
@@ -60,26 +60,28 @@ chkInt() {
 
 chkVer "https://endeavouros.com/latest-release/"
 
-EndeavourVer=$(while read -r
+endeavour_ver=$(while read -r
                do
-                 sed -n '/wp-block-table/,$p' | #Removes everything before this line
-                 sed -n '/<\/div>/q;p' | #Removes everything after "</div>" including this line
-                 sed 's/.*Alpix//' | #Removes everything before & including "Alpix"
-                 sed 's/Download.*//' | #Removes everything after & including "Download"
-                 sed 's/.*EndeavourOS_//' | #Removes everything before & including "EndeavourOS_"
-                 sed 's/.iso.*//' #Removes everything after & including ".iso"
+                 awk 'match($0, /EndeavourOS_([A-z0-9_]*)/, a){print a[1]}' | 
+                 # $0 => current line
+                 # /EndeavourOS_ => search for EndeavourOS_
+                 # [A-z0-9_] => matches anything that is a letter(upper/lower case), digit or underscore.
+                 # * => zero or more times
+                 # a => store the matched substrings in an array 'a'
+                 # a[1] => The array index corresponds to matched string in groups enclosed in (). Here it's ([A-z0-9_]*)
+                 head -1 # Returns first line of awk output
                done < /tmp/scrape)
 
-ISO="EndeavourOS_${EndeavourVer}.iso"
-URL="https://github.com/endeavouros-team/ISO/releases/download/1-EndeavourOS-ISO-releases-archive"
-SHA_File="${ISO}.sha512sum"
-Sig_File="${ISO}.sig"
-Endeavour_GKey=$(GKey Endeavour)
-RemSpace=""
+iso="EndeavourOS_${endeavour_ver}.iso"
+url="https://github.com/endeavouros-team/iso/releases/download/1-EndeavourOS-iso-releases-archive"
+sha_file="${iso}.sha512sum"
+sig_file="${iso}.sig"
+endeavour_gkey=$(GKey Endeavour)
+rem_space=""
 
 chkRemSpace
 
-if [ "$RemSpace" -ge 0 ]
+if [ "$rem_space" -ge 0 ]
 then
   downloadISO
   downloadSHA
@@ -87,7 +89,7 @@ then
   chkAuth
   chkInt
 else
-  calcReqSpace "$RemSpace"
+  calcReqSpace "$rem_space"
 fi
 
 cleanup

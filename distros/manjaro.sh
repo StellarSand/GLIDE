@@ -6,83 +6,78 @@ source /usr/local/lib/GLIDE/common_utils.sh
 selDE() {
   echo -e "\nSelect a desktop environment:"
   echo -e "1. KDE Plasma\n2. XFCE\n3. GNOME"
-  read -p "Enter 1, 2 or 3: " DE
+  read -p "Enter 1, 2 or 3: " de
 
-  if [ "$DE" -eq 1 ]
+  if [ "$de" -eq 1 ]
   then
-    DE="kde"
-  elif [ "$DE" -eq 2 ]
+    de="kde"
+  elif [ "$de" -eq 2 ]
   then
-    DE="xfce"
+    de="xfce"
   else
-    DE="gnome"
+    de="gnome"
   fi
+}
 
-  echo -e "\nSelect minimal or full ISO:"
+selEdition(){
+  echo -e "\nSelect minimal or full iso:"
   echo -e "1. Minimal\n2. Full"
   read -p "Enter 1 or 2: " min_full
 
   if [ "$min_full" -eq 1 ]
   then
-    ISO="manjaro-${DE}-${ManjaroVer}-minimal-${SubVer}.iso"
-  else
-    ISO="manjaro-${DE}-${ManjaroVer}-${SubVer}.iso"
+  is_minimal=true
   fi
-
-  URL="https://download.manjaro.org/${DE}/${ManjaroVer}"
-  SHA_File="${ISO}.sha1"
-  Sig_File="${ISO}.sig"
-
 }
 
 # Checks disk free space after all files would be downloaded
 chkRemSpace() {
   echo -e "\nChecking available disk space ..."
   echo -e "This may take a while ...\n"
-  ISOSize=$(dnldFileSize "$URL"/"$ISO")
-  SHASize=$(dnldFileSize "$URL"/"$SHA_File")
-  SigSize=$(dnldFileSize "$URL"/"$Sig_File")
-  TotalDnldSize=$(awk -v ISOSize="$ISOSize" -v SHASize="$SHASize" -v SigSize="$SigSize" 'BEGIN {print ISOSize + SHASize + SigSize}')
-  RemSpace=$(($(diskFreeSpace)-"$TotalDnldSize"))
+  iso_size=$(dnldFileSize "$url"/"$iso")
+  sha_size=$(dnldFileSize "$url"/"$sha_file")
+  sig_size=$(dnldFileSize "$url"/"$sig_file")
+  total_dnld_size=$(awk -v iso_size="$iso_size" -v sha_size="$sha_size" -v sig_size="$sig_size" 'BEGIN {print iso_size + sha_size + sig_size}')
+  rem_space=$(($(diskFreeSpace)-"$total_dnld_size"))
 }
 
-# Download ISO
+# Download iso
 downloadISO() {
   echo -e "\nDownloading ISO to $(downloadDir)\n"
-  curl -L -o "$(downloadDir)"/"$ISO" "$URL"/"$ISO"
+  curl -L -o "$(downloadDir)"/"$iso" "$url"/"$iso"
   successFail
 }
 
 # Download SHA File
 downloadSHA() {
   echo -e "\nDownloading SHA file to $(downloadDir)\n"
-  curl -L -o "$(downloadDir)"/"$SHA_File" "$URL"/"$SHA_File"
+  curl -L -o "$(downloadDir)"/"$sha_file" "$url"/"$sha_file"
   successFail
 }
 
 # Download Sig file
 downloadSig() {
   echo -e "\nDownloading Sig file to $(downloadDir)\n"
-  curl -L -o "$(downloadDir)"/"$Sig_File" "$URL"/"$Sig_File"
+  curl -L -o "$(downloadDir)"/"$sig_file" "$url"/"$sig_file"
   successFail
 }
 
 # Check authenticity of downloaded iso
 chkAuth() {
   echo -e "\nAdding GPG keys ...\n"
-  gpg --keyid-format long --keyserver hkps://keyserver.ubuntu.com --recv-key 0x"$Manjaro_GKey"
+  gpg --keyid-format long --keyserver hkps://keyserver.ubuntu.com --recv-key 0x"$manjaro_gkey"
   successFail
 
   echo -e "\nChecking authenticity of the downloaded ISO ...\n"
   cd "$(downloadDir)" || exit
-  gpg --keyid-format long --verify "$Sig_File"
+  gpg --keyid-format long --verify "$sig_file"
 }
 
-# Check integrity of downloaded ISO
+# Check integrity of downloaded iso
 chkInt() {
   echo -e "Checking integrity of the downloaded ISO ...\n"
   cd "$(downloadDir)" || exit
-  if [ ! "$(sha1sum -c "$SHA_File" 2>&1 | grep OK)" = "" ]
+  if [ ! "$(sha1sum -c "$sha_file" 2>&1 | grep OK)" = "" ]
   then
     echo -e "Success\n"
   else
@@ -91,36 +86,45 @@ chkInt() {
   fi
 }
 
-chkVer "https://manjaro.org/download/"
-
-ManjaroVer=$(while read -r
-             do
-               sed -n '/<a id="btn-ft/,$p' | #Removes everything before "<a id="btn-ft" line
-               sed -n '/<i class/q;p' | #Removes everything after & including "<i class" line
-               sed 's/.*manjaro-kde-//' | #Removes everything before & including "manjaro-kde-"
-               sed 's/-.*//'; #Removes everything after main version like 22.0
-             done < /tmp/scrape)
-
-SubVer=$(while read -r
-         do
-           sed -n '/<a id="btn-ft/,$p' | #Removes everything before "<a id="btn-ft" line
-           sed -n '/<i class/q;p' | #Removes everything after & including "<i class" line
-           sed "s/.*${ManjaroVer}-//" | #Removes everything before sub version
-           sed 's/.iso.*//' #Removes everything after ".iso"
-         done < /tmp/scrape)
-
-ISO=""
-URL=""
-SHA_File=""
-Sig_File=""
-Manjaro_GKey=$(GKey Manjaro)
-RemSpace=""
+de=""
+is_minimal=false
+manjaro_gkey=$(GKey Manjaro)
+rem_space=""
 
 selDE
+selEdition
+
+chkVer "https://manjaro.org/download/"
+
+temp_ver=$(while read -r
+          do
+            awk 'match($0, /manjaro-kde-([.0-9]*)-minimal-([a-z0-9-]*).iso/, a){print a[1] "\n" a[2]}'
+            # $0 => current line
+            # /x86_64- => search for x86_64-
+            # [a-z0-9-] => matches anything that is a letter, digit or -
+            # * => zero or more times
+            # a => store the matched substrings in an array 'a'
+            # a[1] => Stores the matched string in ([.0-9]*). This would be main version like 22.0
+            # a[2] => Stores the matched string in ([a-z0-9-]*). This would be the subversion like 221224-linux61
+          done < /tmp/scrape)
+
+manjaro_ver=$(echo "$temp_ver" | head -1)
+sub_ver=$(echo "$temp_ver" | tail -1)
+
+if $is_minimal
+then
+  iso="manjaro-${de}-${manjaro_ver}-minimal-${sub_ver}.iso"
+else
+  iso="manjaro-${de}-${manjaro_ver}-${sub_ver}.iso"
+fi
+
+url="https://download.manjaro.org/${de}/${manjaro_ver}"
+sha_file="${iso}.sha1"
+sig_file="${iso}.sig"
 
 chkRemSpace
 
-if [ "$RemSpace" -ge 0 ]
+if [ "$rem_space" -ge 0 ]
 then
   downloadISO
   downloadSHA
@@ -128,7 +132,7 @@ then
   chkAuth
   chkInt
 else
-  calcReqSpace "$RemSpace"
+  calcReqSpace "$rem_space"
 fi
 
 cleanup

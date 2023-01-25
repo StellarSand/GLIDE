@@ -6,42 +6,42 @@ source /usr/local/lib/GLIDE/common_utils.sh
 chkRemSpace() {
   echo "Checking available disk space ..."
   echo -e "This may take a while ...\n"
-  ISOSize=$(dnldFileSize "$URL"/"$ISO")
-  ChecksumSize=$(dnldFileSize "$Checksum_URL"/"$Checksum_File")
-  GPGSize=$(dnldFileSize "$GPG_URL"/"$GPG_File")
-  TotalDnldSize=$(awk -v ISOSize="$ISOSize" -v ChecksumSize="$ChecksumSize" -v GPGSize="$GPGSize" 'BEGIN {print ISOSize + ChecksumSize + GPGSize}')
-  RemSpace=$(($(diskFreeSpace)-"$TotalDnldSize"))
+  iso_size=$(dnldFileSize "$url"/"$iso")
+  checksum_size=$(dnldFileSize "$checksum_url"/"$checksum_file")
+  gpg_size=$(dnldFileSize "$gpg_url"/"$gpg_file")
+  total_dnld_size=$(awk -v iso_size="$iso_size" -v checksum_size="$checksum_size" -v gpg_size="$gpg_size" 'BEGIN {print iso_size + checksum_size + gpg_size}')
+  rem_space=$(($(diskFreeSpace)-"$total_dnld_size"))
 }
 
-# Download ISO
+# Download iso
 downloadISO() {
   echo -e "\nDownloading ISO to $(downloadDir)\n"
-  curl -L -o "$(downloadDir)"/"$ISO" "$URL"/"$ISO"
+  curl -L -o "$(downloadDir)"/"$iso" "$url"/"$iso"
   successFail
 }
 
-# Download Checksum_File
+# Download checksum_file
 downloadChecksum() {
   echo -e "\nDownloading checksum to $(downloadDir)\n"
-  curl -L -o "$(downloadDir)"/"$Checksum_File" "$Checksum_URL"/"$Checksum_File"
+  curl -L -o "$(downloadDir)"/"$checksum_file" "$checksum_url"/"$checksum_file"
   successFail
 }
 
 # Download GPG file
 downloadGPG() {
   echo -e "\nDownloading GPG file to $(downloadDir)\n"
-  curl -L -o "$(downloadDir)"/"$GPG_File" "$GPG_URL"/"$GPG_File"
+  curl -L -o "$(downloadDir)"/"$gpg_file" "$gpg_url"/"$gpg_file"
   successFail
 }
 
 chkAuth() {
-  echo -e "\nChecking authenticity of the downloaded iso ...\n"
+  echo -e "\nChecking authenticity of the downloaded ISO ...\n"
   cd "$(downloadDir)" || exit
   gpgv --keyring ./fedora.gpg *-CHECKSUM
 }
 
 chkInt() {
-  echo -e "\nChecking integrity of the downloaded iso ...\n"
+  echo -e "\nChecking integrity of the downloaded ISO ...\n"
   cd "$(downloadDir)" || exit
   if [ ! "$(sha256sum -c *-CHECKSUM 2>&1 | grep OK)" = "" ]
   then
@@ -54,33 +54,32 @@ chkInt() {
 
 chkVer "https://alt.fedoraproject.org/"
 
-FedoraVer=$(while read -r
-           do
-             sed -n '/Fedora-Everything/,$p' | #Removes everything before "Fedora-Everything" line
-             sed -n '/ <\//q;p' | #Removes everything after "</"and including this line
-             sed 's/.*netinst-x86_64-//' | #Removes everything before and including "netinst-x86_64-"
-             sed 's/-.*//' #Only keeps main version like "37"
-           done < /tmp/scrape)
+temp_ver=$(while read -r
+          do
+            awk 'match($0, /x86_64-([0-9]*)-([.0-9]*).iso/, a){print a[1] "\n" a[2]}'
+            # $0 => current line
+            # /x86_64- => search for x86_64-
+            # [0-9] => matches anything that is a digit.
+            # * => zero or more times
+            # a => store the matched substrings in an array 'a'
+            # a[1] => Stored the matched string in ([0-9]*). This would be main version like 37
+            # a[2] => Stores the matched string in ([.0-9]*). This would be the subversion like 1.7
+          done < /tmp/scrape)
 
-SubVer=$(while read -r
-         do
-           sed -n '/Fedora-Everything/,$p' | #Removes everything before "Fedora-Everything" line
-           sed -n '/ <\//q;p' | #Removes everything after "</"and including this line
-           sed "s/.*x86_64-${FedoraVer}-//" | #Removes everything before "x86_64_37-"
-           sed 's/.iso".*//' #Only keeps sub version like "1.7"
-         done < /tmp/scrape)
+fedora_ver=$(echo "$temp_ver" | head -1)
+sub_ver=$(echo "$temp_ver" | tail -1)
 
-ISO="Fedora-Workstation-Live-x86_64-${FedoraVer}-${SubVer}.iso"
-URL="https://download.fedoraproject.org/pub/fedora/linux/releases/${FedoraVer}/Workstation/x86_64/iso"
-Checksum_File="Fedora-Workstation-${FedoraVer}-${SubVer}-x86_64-CHECKSUM"
-Checksum_URL="https://getfedora.org/static/checksums/${FedoraVer}/iso"
-GPG_File="fedora.gpg"
-GPG_URL="https://getfedora.org/static"
-RemSpace=""
+iso="Fedora-Workstation-Live-x86_64-${fedora_ver}-${sub_ver}.iso"
+url="https://download.fedoraproject.org/pub/fedora/linux/releases/${fedora_ver}/Workstation/x86_64/iso"
+checksum_file="Fedora-Workstation-${fedora_ver}-${sub_ver}-x86_64-CHECKSUM"
+checksum_url="https://getfedora.org/static/checksums/${fedora_ver}/iso"
+gpg_file="fedora.gpg"
+gpg_url="https://getfedora.org/static"
+rem_space=""
 
 chkRemSpace
 
-if [ "$RemSpace" -ge 0 ]
+if [ "$rem_space" -ge 0 ]
 then
   downloadISO
   downloadChecksum
@@ -88,7 +87,7 @@ then
   chkAuth
   chkInt
 else
-  calcReqSpace "$RemSpace"
+  calcReqSpace "$rem_space"
 fi
 
 cleanup

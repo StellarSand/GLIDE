@@ -2,11 +2,11 @@
 
 source /usr/local/lib/GLIDE/common_utils.sh
 
-Distro=""
-DefDnldDir=$(xdg-user-dir DOWNLOAD)
-ConfigDir="$HOME/.config/GLIDE"
-ConfigFile="$ConfigDir/dnld_dir"
-DistroScriptsDir="/usr/local/lib/GLIDE/distros"
+distro=""
+def_dnld_dir=$(xdg-user-dir DOWNLOAD)
+config_dir="$HOME/.config/GLIDE"
+config_file="$config_dir/dnld_dir"
+distro_scripts_dir="/usr/local/lib/GLIDE/distros"
 
 hasCommand() {
 if ! (command -v "$1" > /dev/null)
@@ -64,34 +64,29 @@ EOF
 
 }
 
-# Start script
-
 # Check config directory
-if [ ! -d "$ConfigDir" ]
+if [ ! -d "$config_dir" ]
 then
-		mkdir "$ConfigDir"
+		mkdir "$config_dir"
 fi
 
 # Check config file
-if [ ! -f "$ConfigFile" ]
+if [ ! -f "$config_file" ]
 then
-  echo -e "$DefDnldDir" > "$ConfigFile"
-  echo -e "Default download directory is set to $DefDnldDir"
+  echo "$def_dnld_dir" > "$config_file"
+  echo "Default download directory is set to $def_dnld_dir"
 fi
 
 # Check download directory
-if [ ! -d "$DefDnldDir" ]
+if [ ! -d "$def_dnld_dir" ]
 then
   echo -e "\nSet a default directory to download files."
-  echo -e "Try 'glide -h' for more information."
+  echo "Try 'glide -h' for more information."
   echo -e "Exiting script ...\n"
   exit 1
 fi
 
-# Check curl package
 hasCommand "curl"
-
-# Check GPG package
 hasCommand "gpg"
 
 # If no options are provided, print usage
@@ -119,14 +114,19 @@ do
     -D | --default-dir)
       if [ $# -gt 1 ]
       then
-        shift
-        DefDnldDir=$1
-        echo "$DefDnldDir" > "$ConfigFile"
-        successFail
-        echo -e "All files will be downloaded in $DefDnldDir"
+        if [ ! -d "$2" ]
+        then
+          echo -e "\n$2 does not exist."
+          echo -e "Exiting script ...\n"
+          exit 1
+        else
+          echo "$2" > "$config_file"
+          successFail
+          echo -e "All files will be downloaded in $2\n"
+          shift
+        fi
       else
-        echo -e "\nInvalid option: $1"
-        echo -e "The -D or --default-dir option must be used alone."
+        echo -e "\nThe -D or --default-dir option must be followed by a directory path."
         echo -e "Try 'glide -h' for more information.\n"
         exit 1
       fi
@@ -135,19 +135,17 @@ do
     -d | --directory)
       if [ $# -gt 1 ]
       then
-        shift
-        CurrDnldDir=$1
-        if [ ! -d "$CurrDnldDir" ]
+        if [ ! -d "$2" ]
         then
-          echo -e "\n$CurrDnldDir does not exist."
+          echo -e "\n$2 does not exist."
           echo -e "Exiting script ...\n"
           exit 1
         else
-          echo "$CurrDnldDir" > /tmp/curr_dnld_dir
+          echo "$2" > /tmp/curr_dnld_dir
+          shift
         fi
       else
-        echo -e "\nInvalid option: $1"
-        echo -e "The -d or --directory option must be followed by a directory path."
+        echo -e "\nThe -d or --directory option must be followed by a directory path."
         echo -e "Try 'glide -h' for more information.\n"
         exit 1
       fi
@@ -160,7 +158,7 @@ do
     ;;
 
     *)
-      Distro=$1
+      distro=$1
     ;;
 
 
@@ -170,12 +168,12 @@ done
 
 # Perform actual downloads
 # Keep scripts separate for easier & better maintenance
-if [ -n "$Distro" ] # Only run this if script has "-n" input
+if [ -n "$distro" ] # Only run this if script has "-n" input
 then
-  if [ -f $DistroScriptsDir/"$Distro".sh ]
+  if [ -f $distro_scripts_dir/"$distro".sh ]
   then
-    execPerm $DistroScriptsDir/"$Distro".sh
-    $DistroScriptsDir/"$Distro".sh
+    execPerm $distro_scripts_dir/"$distro".sh
+    $distro_scripts_dir/"$distro".sh
   else
     echo -e "\nInvalid distro name."
     echo -e "Try 'glide -l' to see the list of available distros.\n"
