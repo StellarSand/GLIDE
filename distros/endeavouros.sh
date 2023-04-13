@@ -23,8 +23,8 @@ downloadISO() {
 # Download SHA File
 downloadSHA() {
   echo -e "\nDownloading SHA file to $(downloadDir)\n"
-  curl -L -o "$(downloadDir)"/"$sha_File" "$url"/"$sha_File"
-f successFail
+  curl -L -o "$(downloadDir)"/"$sha_file" "$url"/"$sha_file"
+  successFail
 }
 
 # Download Sig file
@@ -49,8 +49,8 @@ chkAuth() {
 chkInt() {
   echo -e "\nChecking integrity of the downloaded ISO ...\n"
   cd "$(downloadDir)" || exit
-  if [ ! "$(sha512sum -c "$sha_File" 2>&1 | grep OK)" = "" ]
-f then
+  if [ ! "$(sha512sum -c "$sha_file" 2>&1 | grep OK)" = "" ]
+  then
     echo -e "Success\n"
   else
     echo -e "Failed\n"

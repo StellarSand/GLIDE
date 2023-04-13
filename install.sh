@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
 successFail() {
-if [ $? -eq 0 ]
-then
-	echo -e "\nDone.\n"
-else
-	echo -e "\nSome error occurred performing the task.\n"
-	exit 1
-fi
+	if [ $? -eq 0 ]
+	then
+		echo -e "Done.\n"
+	else
+		echo -e "Some error occurred performing the task.\n"
+		exit 1
+	fi
 }
 
 echo "Installing ..."

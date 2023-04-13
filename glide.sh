@@ -2,12 +2,6 @@
 
 source /usr/local/lib/GLIDE/common_utils.sh
 
-distro=""
-def_dnld_dir=$(xdg-user-dir DOWNLOAD)
-config_dir="$HOME/.config/GLIDE"
-config_file="$config_dir/dnld_dir"
-distro_scripts_dir="/usr/local/lib/GLIDE/distros"
-
 hasCommand() {
 if ! (command -v "$1" > /dev/null)
 then
@@ -64,6 +58,15 @@ EOF
 
 }
 
+hasCommand "curl"
+hasCommand "gpg"
+
+distro=""
+def_dnld_dir=$(xdg-user-dir DOWNLOAD)
+config_dir="$HOME/.config/GLIDE"
+config_file="$config_dir/dnld_dir"
+distro_scripts_dir="/usr/local/lib/GLIDE/distros"
+
 # Check config directory
 if [ ! -d "$config_dir" ]
 then
@@ -85,9 +88,6 @@ then
   echo -e "Exiting script ...\n"
   exit 1
 fi
-
-hasCommand "curl"
-hasCommand "gpg"
 
 # If no options are provided, print usage
 if [ $# -eq 0 ]
