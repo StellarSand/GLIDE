@@ -92,7 +92,7 @@ then
                 # a => store the matched substrings in an array 'a'
                 # a[1] => The array index corresponds to matched string in groups enclosed in (). Here it's ([.0-9]*) 
                 head -1 # Returns first line of awk output
-              done < /tmp/scrape) #Removes everything after version number
+              done < /tmp/scrape)
 else
   ubuntu_ver=$(while read -r
               do
