@@ -35,7 +35,7 @@ All downloaded files are always the latest ones.
 ## Installation
 **1. Clone this repo:**
 ```
-git clone https://github.com/the-weird-aquarian/GLIDE.git
+git clone https://github.com/StellarSand/GLIDE.git
 ```
 
 **2. Move into the project directory:**
@@ -90,7 +90,7 @@ If GLIDE has been installed, you can remove it by:
 
 **1. Clone this repo (if not done already):**
 ```
-git clone https://github.com/the-weird-aquarian/GLIDE.git
+git clone https://github.com/StellarSand/GLIDE.git
 ```
 
 **2. Move into the project directory:**
@@ -117,4 +117,4 @@ chmod +x uninstall.sh
 
 
 ## Contributing
-Pull requests can be submitted [here](https://github.com/the-weird-aquarian/GLIDE/pulls). Any contribution to the project will be highly appreciated.
+Pull requests can be submitted [here](https://github.com/StellarSand/GLIDE/pulls). Any contribution to the project will be highly appreciated.
